@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Save, FileText, TrendingUp, TrendingDown, Minus, 
-  UserPlus, UserMinus, AlertTriangle, CheckCircle, Info, Printer
+  UserPlus, UserMinus, AlertTriangle, CheckCircle, Info, Printer, Loader2, Plus, Calendar
 } from 'lucide-react';
+import { collection, doc, getDocs, setDoc, getDoc } from 'firebase/firestore';
+import { db } from './firebase';
 import './index.css';
 
 const defaultData = {
@@ -22,11 +24,83 @@ const defaultData = {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('ingreso');
-  const [data, setData] = useState(() => {
-    const saved = localStorage.getItem('inspectoriaData');
-    if (saved) return JSON.parse(saved);
-    return defaultData;
-  });
+  const [loading, setLoading] = useState(true);
+  const [reportesList, setReportesList] = useState([]);
+  const [currentId, setCurrentId] = useState(null);
+  const [data, setData] = useState(defaultData);
+
+  useEffect(() => {
+    async function loadReportes() {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'reportes'));
+        const list = [];
+        querySnapshot.forEach((doc) => {
+          list.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Sort by id descending just as a basic sort
+        list.sort((a,b) => b.id.localeCompare(a.id));
+        setReportesList(list);
+
+        if (list.length > 0) {
+          setCurrentId(list[0].id);
+          setData(list[0]);
+        }
+      } catch (e) {
+        console.error("Error loading data:", e);
+        if (e.code === 'unavailable' || e.code === 'permission-denied' || String(e).includes('does not exist')) {
+          alert('¡Hola! El proyecto de Firebase se ha creado exitosamente junto con tu App Web. Sin embargo, Firebase requiere que inicies tu base de datos "Cloud Firestore" manualmente por única vez haciendo click en "Crear Base de Datos" en tu consola de Firebase antes de poder usarla. Luego, recarga esta página.');
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadReportes();
+  }, []);
+
+  useEffect(() => {
+    async function saveData() {
+      if (loading || !currentId) return;
+      try {
+        await setDoc(doc(db, 'reportes', currentId), data);
+        
+        // Update list locally
+        setReportesList(prev => {
+          const exists = prev.find(p => p.id === currentId);
+          if (exists) {
+            return prev.map(p => p.id === currentId ? {id: currentId, ...data} : p);
+          }
+          return [{id: currentId, ...data}, ...prev].sort((a,b) => b.id.localeCompare(a.id));
+        });
+      } catch (e) {
+        console.error("Error saving data:", e);
+      }
+    }
+    
+    // Simple debounce for saving
+    const timer = setTimeout(() => saveData(), 1000);
+    return () => clearTimeout(timer);
+  }, [data, loading, currentId]);
+
+  const handleSelectReporte = (id) => {
+    const found = reportesList.find(r => r.id === id);
+    if (found) {
+      setCurrentId(id);
+      setData(found);
+    }
+  };
+
+  const handleCreateNew = () => {
+    const monthYear = prompt("Ingrese el mes y año (ej: Abril 2026):");
+    if (!monthYear) return;
+    
+    const id = monthYear.toLowerCase().replace(/\s+/g, '-');
+    const newData = { ...defaultData, periodo: monthYear };
+    
+    setCurrentId(id);
+    setData(newData);
+    setActiveTab('ingreso');
+  };
 
   const [nuevaAlerta, setNuevaAlerta] = useState({
     nombre: '',
@@ -34,10 +108,6 @@ export default function App() {
     asistenciaAcum: '',
     accion: 'Derivado a Dupla Psicosocial'
   });
-
-  useEffect(() => {
-    localStorage.setItem('inspectoriaData', JSON.stringify(data));
-  }, [data]);
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -81,29 +151,71 @@ export default function App() {
     window.print();
   };
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--primary)' }}>
+        <Loader2 className="animate-spin" size={48} />
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
-      <header className="no-print">
-        <h1>Sistema Inspectoría CEIA</h1>
-        <p style={{ color: 'var(--text-muted)' }}>Gestión de Eficiencia Interna y Matrícula</p>
+      <header className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ textAlign: 'left' }}>Sistema Inspectoría CEIA</h1>
+          <p style={{ color: 'var(--text-muted)' }}>Gestión de Eficiencia Interna y Matrícula</p>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <select 
+            value={currentId || ''} 
+            onChange={(e) => handleSelectReporte(e.target.value)}
+            style={{ width: '200px', padding: '0.5rem', background: 'var(--bg-card)' }}
+            disabled={!currentId}
+          >
+            {reportesList.length === 0 && <option value="">Sin reportes</option>}
+            {reportesList.map(r => (
+              <option key={r.id} value={r.id}>{r.periodo}</option>
+            ))}
+          </select>
+          <button className="primary" onClick={handleCreateNew}>
+            <Plus size={18} /> Nuevo Mes
+          </button>
+        </div>
       </header>
 
       <div className="tabs no-print">
         <button 
           className={`tab ${activeTab === 'ingreso' ? 'active' : ''}`}
           onClick={() => setActiveTab('ingreso')}
+          disabled={!currentId}
         >
           <Save size={18} /> Ingreso de Datos
         </button>
         <button 
           className={`tab ${activeTab === 'reporte' ? 'active' : ''}`}
           onClick={() => setActiveTab('reporte')}
+          disabled={!currentId}
         >
           <FileText size={18} /> Reporte Mensual
         </button>
       </div>
 
-      {activeTab === 'ingreso' && (
+      {!currentId && !loading && (
+        <div className="card animate-fade-in" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+          <Calendar size={48} style={{ color: 'var(--primary)', marginBottom: '1rem', opacity: 0.8 }} />
+          <h2>Aún no hay reportes de inspectoría</h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
+            Comienza creando el primer reporte mensual para ingresar los datos.
+          </p>
+          <button className="primary" onClick={handleCreateNew}>
+            <Plus size={18} /> Crear Primer Reporte
+          </button>
+        </div>
+      )}
+
+      {currentId && activeTab === 'ingreso' && (
         <div className="animate-fade-in no-print">
           <div className="card">
             <h2>Datos Generales del Periodo</h2>
