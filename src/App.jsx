@@ -3,6 +3,8 @@ import {
   Save, FileText, TrendingUp, TrendingDown, Minus, 
   UserPlus, UserMinus, AlertTriangle, CheckCircle, Info, Printer, Loader2, Plus, Calendar
 } from 'lucide-react';
+import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { db } from './firebase';
 import './index.css';
 
 const defaultData = {
@@ -27,45 +29,50 @@ export default function App() {
   const [currentId, setCurrentId] = useState(null);
   const [data, setData] = useState(defaultData);
 
+  // Cargar desde Firebase en tiempo real
   useEffect(() => {
-    // Cargar desde almacenamiento local
-    try {
-      const saved = localStorage.getItem('inspectoria_historial');
-      if (saved) {
-        const list = JSON.parse(saved);
-        list.sort((a,b) => b.id.localeCompare(a.id));
-        setReportesList(list);
+    const unsubscribe = onSnapshot(collection(db, 'reportes'), (snapshot) => {
+      const list = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      list.sort((a, b) => b.id.localeCompare(a.id));
+      setReportesList(list);
 
-        if (list.length > 0) {
-          setCurrentId(list[0].id);
-          setData(list[0]);
+      // Si recién cargamos y no hay id seleccionado, elegir el primero
+      setLoading(prevLoading => {
+        if (prevLoading && list.length > 0) {
+          setCurrentId(current => {
+             if (!current) {
+               setData(list[0]);
+               return list[0].id;
+             }
+             return current;
+          });
         }
-      }
-    } catch (e) {
-      console.error("Error loading data:", e);
-    } finally {
+        return false;
+      });
+    }, (error) => {
+      console.error("Error al cargar datos desde Firebase:", error);
       setLoading(false);
-    }
+    });
+
+    return () => unsubscribe();
   }, []);
 
+  // Guardar en Firebase cuando hay cambios
   useEffect(() => {
-    // Guardar en almacenamiento local
     if (loading || !currentId) return;
     
-    const timer = setTimeout(() => {
-      setReportesList(prev => {
-        const exists = prev.find(p => p.id === currentId);
-        let newList;
-        if (exists) {
-          newList = prev.map(p => p.id === currentId ? {id: currentId, ...data} : p);
-        } else {
-          newList = [{id: currentId, ...data}, ...prev].sort((a,b) => b.id.localeCompare(a.id));
-        }
-        
-        localStorage.setItem('inspectoria_historial', JSON.stringify(newList));
-        return newList;
-      });
-    }, 500); // Pequeño retraso para no saturar
+    const timer = setTimeout(async () => {
+      try {
+        const docRef = doc(db, 'reportes', currentId);
+        const { id, ...dataToSave } = data; 
+        await setDoc(docRef, dataToSave, { merge: true });
+      } catch (err) {
+        console.error("Error al guardar en Firebase:", err);
+      }
+    }, 1000); // 1 segundo de debounce para evitar muchas escrituras
     
     return () => clearTimeout(timer);
   }, [data, loading, currentId]);
