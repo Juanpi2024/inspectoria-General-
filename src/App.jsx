@@ -3,8 +3,6 @@ import {
   Save, FileText, TrendingUp, TrendingDown, Minus, 
   UserPlus, UserMinus, AlertTriangle, CheckCircle, Info, Printer, Loader2, Plus, Calendar
 } from 'lucide-react';
-import { collection, doc, getDocs, setDoc, getDoc } from 'firebase/firestore';
-import { db } from './firebase';
 import './index.css';
 
 const defaultData = {
@@ -30,15 +28,11 @@ export default function App() {
   const [data, setData] = useState(defaultData);
 
   useEffect(() => {
-    async function loadReportes() {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'reportes'));
-        const list = [];
-        querySnapshot.forEach((doc) => {
-          list.push({ id: doc.id, ...doc.data() });
-        });
-        
-        // Sort by id descending just as a basic sort
+    // Cargar desde almacenamiento local
+    try {
+      const saved = localStorage.getItem('inspectoria_historial');
+      if (saved) {
+        const list = JSON.parse(saved);
         list.sort((a,b) => b.id.localeCompare(a.id));
         setReportesList(list);
 
@@ -46,39 +40,33 @@ export default function App() {
           setCurrentId(list[0].id);
           setData(list[0]);
         }
-      } catch (e) {
-        console.error("Error loading data:", e);
-        if (e.code === 'unavailable' || e.code === 'permission-denied' || String(e).includes('does not exist')) {
-          alert('¡Hola! El proyecto de Firebase se ha creado exitosamente junto con tu App Web. Sin embargo, Firebase requiere que inicies tu base de datos "Cloud Firestore" manualmente por única vez haciendo click en "Crear Base de Datos" en tu consola de Firebase antes de poder usarla. Luego, recarga esta página.');
-        }
-      } finally {
-        setLoading(false);
       }
+    } catch (e) {
+      console.error("Error loading data:", e);
+    } finally {
+      setLoading(false);
     }
-    loadReportes();
   }, []);
 
   useEffect(() => {
-    async function saveData() {
-      if (loading || !currentId) return;
-      try {
-        await setDoc(doc(db, 'reportes', currentId), data);
-        
-        // Update list locally
-        setReportesList(prev => {
-          const exists = prev.find(p => p.id === currentId);
-          if (exists) {
-            return prev.map(p => p.id === currentId ? {id: currentId, ...data} : p);
-          }
-          return [{id: currentId, ...data}, ...prev].sort((a,b) => b.id.localeCompare(a.id));
-        });
-      } catch (e) {
-        console.error("Error saving data:", e);
-      }
-    }
+    // Guardar en almacenamiento local
+    if (loading || !currentId) return;
     
-    // Simple debounce for saving
-    const timer = setTimeout(() => saveData(), 1000);
+    const timer = setTimeout(() => {
+      setReportesList(prev => {
+        const exists = prev.find(p => p.id === currentId);
+        let newList;
+        if (exists) {
+          newList = prev.map(p => p.id === currentId ? {id: currentId, ...data} : p);
+        } else {
+          newList = [{id: currentId, ...data}, ...prev].sort((a,b) => b.id.localeCompare(a.id));
+        }
+        
+        localStorage.setItem('inspectoria_historial', JSON.stringify(newList));
+        return newList;
+      });
+    }, 500); // Pequeño retraso para no saturar
+    
     return () => clearTimeout(timer);
   }, [data, loading, currentId]);
 
