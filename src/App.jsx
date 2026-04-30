@@ -104,7 +104,8 @@ export default function App() {
     nombre: '',
     asistenciaMes: '',
     asistenciaAcum: '',
-    accion: 'Derivado a Dupla Psicosocial'
+    acciones: [],
+    otraAccion: ''
   });
 
   const handleChange = (e) => {
@@ -119,16 +120,31 @@ export default function App() {
     e.preventDefault();
     if (!nuevaAlerta.nombre) return;
     
+    let finalAcciones = nuevaAlerta.acciones.filter(a => a !== 'Otra');
+    if (nuevaAlerta.acciones.includes('Otra') && nuevaAlerta.otraAccion.trim()) {
+      finalAcciones.push(nuevaAlerta.otraAccion.trim());
+    } else if (nuevaAlerta.acciones.includes('Otra')) {
+      finalAcciones.push('Otra');
+    }
+    const accionString = finalAcciones.length > 0 ? finalAcciones.join(', ') : 'Sin acción';
+    
     setData(prev => ({
       ...prev,
-      alertas: [...prev.alertas, { ...nuevaAlerta, id: Date.now() }]
+      alertas: [...prev.alertas, { 
+        nombre: nuevaAlerta.nombre,
+        asistenciaMes: nuevaAlerta.asistenciaMes,
+        asistenciaAcum: nuevaAlerta.asistenciaAcum,
+        accion: accionString,
+        id: Date.now() 
+      }]
     }));
     
     setNuevaAlerta({
       nombre: '',
       asistenciaMes: '',
       asistenciaAcum: '',
-      accion: 'Derivado a Dupla Psicosocial'
+      acciones: [],
+      otraAccion: ''
     });
   };
 
@@ -344,12 +360,45 @@ export default function App() {
               </div>
               <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                 <label>Acción Realizada</label>
-                <select value={nuevaAlerta.accion} onChange={e => setNuevaAlerta({...nuevaAlerta, accion: e.target.value})}>
-                  <option value="Derivado a Dupla Psicosocial">Derivado a Dupla</option>
-                  <option value="Citación de apoderado/adulto">Citación Apoderado</option>
-                  <option value="Entrevista Personal">Entrevista Personal</option>
-                  <option value="Visita Domiciliaria">Visita Domiciliaria</option>
-                </select>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', background: 'var(--bg-card)', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border)' }}>
+                  {['Derivado a Dupla Psicosocial', 'Citación de apoderado/adulto', 'Entrevista Personal', 'Visita Domiciliaria'].map(op => (
+                    <label key={op} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 'normal', margin: 0 }}>
+                      <input 
+                        type="checkbox" 
+                        checked={nuevaAlerta.acciones.includes(op)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setNuevaAlerta({...nuevaAlerta, acciones: [...nuevaAlerta.acciones, op]});
+                          } else {
+                            setNuevaAlerta({...nuevaAlerta, acciones: nuevaAlerta.acciones.filter(a => a !== op)});
+                          }
+                        }}
+                      /> {op}
+                    </label>
+                  ))}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 'normal', margin: 0 }}>
+                    <input 
+                      type="checkbox" 
+                      checked={nuevaAlerta.acciones.includes('Otra')}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setNuevaAlerta({...nuevaAlerta, acciones: [...nuevaAlerta.acciones, 'Otra']});
+                        } else {
+                          setNuevaAlerta({...nuevaAlerta, acciones: nuevaAlerta.acciones.filter(a => a !== 'Otra'), otraAccion: ''});
+                        }
+                      }}
+                    /> Otra: 
+                    {nuevaAlerta.acciones.includes('Otra') && (
+                      <input 
+                        type="text" 
+                        value={nuevaAlerta.otraAccion} 
+                        onChange={e => setNuevaAlerta({...nuevaAlerta, otraAccion: e.target.value})}
+                        style={{ padding: '0.25rem', fontSize: '0.8rem', width: 'auto', flex: 1, marginLeft: '0.5rem', border: '1px solid var(--border)', borderRadius: '4px' }}
+                        placeholder="Escriba la acción..."
+                      />
+                    )}
+                  </label>
+                </div>
               </div>
               <button type="submit" className="primary" style={{ marginBottom: '2px' }}>Agregar</button>
             </form>
