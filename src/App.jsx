@@ -360,25 +360,43 @@ export default function App() {
               </div>
               <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                 <label>Acción Realizada</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', background: 'var(--bg-card)', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border)' }}>
-                  {['Derivado a Dupla Psicosocial', 'Citación de apoderado/adulto', 'Entrevista Personal', 'Visita Domiciliaria'].map(op => (
-                    <label key={op} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 'normal', margin: 0 }}>
-                      <input 
-                        type="checkbox" 
-                        checked={nuevaAlerta.acciones.includes(op)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setNuevaAlerta({...nuevaAlerta, acciones: [...nuevaAlerta.acciones, op]});
-                          } else {
-                            setNuevaAlerta({...nuevaAlerta, acciones: nuevaAlerta.acciones.filter(a => a !== op)});
-                          }
-                        }}
-                      /> {op}
-                    </label>
-                  ))}
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 'normal', margin: 0 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {['Derivado a Dupla Psicosocial', 'Citación de apoderado/adulto', 'Entrevista Personal', 'Visita Domiciliaria'].map(op => {
+                    const isSelected = nuevaAlerta.acciones.includes(op);
+                    return (
+                      <label key={op} style={{ 
+                        display: 'inline-flex', alignItems: 'center', padding: '0.4rem 0.8rem', 
+                        background: isSelected ? 'var(--primary-glow)' : 'rgba(255,255,255,0.03)',
+                        border: `1px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}`,
+                        borderRadius: '20px', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem',
+                        color: isSelected ? '#fff' : 'var(--text-muted)'
+                      }}>
+                        <input 
+                          type="checkbox" 
+                          style={{ display: 'none' }}
+                          checked={isSelected}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setNuevaAlerta({...nuevaAlerta, acciones: [...nuevaAlerta.acciones, op]});
+                            } else {
+                              setNuevaAlerta({...nuevaAlerta, acciones: nuevaAlerta.acciones.filter(a => a !== op)});
+                            }
+                          }}
+                        /> {op}
+                      </label>
+                    );
+                  })}
+                  
+                  <label style={{ 
+                    display: 'inline-flex', alignItems: 'center', padding: '0.4rem 0.8rem', 
+                    background: nuevaAlerta.acciones.includes('Otra') ? 'var(--primary-glow)' : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${nuevaAlerta.acciones.includes('Otra') ? 'var(--primary)' : 'var(--border)'}`,
+                    borderRadius: '20px', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem',
+                    color: nuevaAlerta.acciones.includes('Otra') ? '#fff' : 'var(--text-muted)'
+                  }}>
                     <input 
                       type="checkbox" 
+                      style={{ display: 'none' }}
                       checked={nuevaAlerta.acciones.includes('Otra')}
                       onChange={(e) => {
                         if (e.target.checked) {
@@ -387,17 +405,21 @@ export default function App() {
                           setNuevaAlerta({...nuevaAlerta, acciones: nuevaAlerta.acciones.filter(a => a !== 'Otra'), otraAccion: ''});
                         }
                       }}
-                    /> Otra: 
-                    {nuevaAlerta.acciones.includes('Otra') && (
-                      <input 
-                        type="text" 
-                        value={nuevaAlerta.otraAccion} 
-                        onChange={e => setNuevaAlerta({...nuevaAlerta, otraAccion: e.target.value})}
-                        style={{ padding: '0.25rem', fontSize: '0.8rem', width: 'auto', flex: 1, marginLeft: '0.5rem', border: '1px solid var(--border)', borderRadius: '4px' }}
-                        placeholder="Escriba la acción..."
-                      />
-                    )}
+                    /> Otra
                   </label>
+
+                  {nuevaAlerta.acciones.includes('Otra') && (
+                    <input 
+                      type="text" 
+                      value={nuevaAlerta.otraAccion} 
+                      onChange={e => setNuevaAlerta({...nuevaAlerta, otraAccion: e.target.value})}
+                      style={{ 
+                        padding: '0.4rem 0.8rem', fontSize: '0.85rem', width: '200px', 
+                        borderRadius: '20px', background: 'rgba(15,23,42,0.6)', margin: 0 
+                      }}
+                      placeholder="Especifique cuál..."
+                    />
+                  )}
                 </div>
               </div>
               <button type="submit" className="primary" style={{ marginBottom: '2px' }}>Agregar</button>
