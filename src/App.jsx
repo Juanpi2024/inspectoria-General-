@@ -78,10 +78,13 @@ export default function App() {
   }, [data, loading, currentId]);
 
   const handleSelectReporte = (id) => {
+    // Si hay datos, primero podríamos forzar un guardado si quisieramos, pero
+    // por ahora solo cambiamos de mes.
     const found = reportesList.find(r => r.id === id);
     if (found) {
       setCurrentId(id);
       setData(found);
+      setActiveTab('ingreso'); // Forzar la pestaña de ingreso para que puedan editar
     }
   };
 
@@ -137,8 +140,8 @@ export default function App() {
   };
 
   const clearData = () => {
-    if (window.confirm('¿Está seguro de querer limpiar todos los datos?')) {
-      setData(defaultData);
+    if (window.confirm('¿Está seguro de querer limpiar todos los datos? Esto no borrará el mes, pero sí todo su contenido.')) {
+      setData({ ...defaultData, periodo: data.periodo });
     }
   };
 
