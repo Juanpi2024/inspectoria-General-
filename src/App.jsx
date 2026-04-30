@@ -102,6 +102,7 @@ export default function App() {
 
   const [nuevaAlerta, setNuevaAlerta] = useState({
     nombre: '',
+    curso: '',
     asistenciaMes: '',
     asistenciaAcum: '',
     acciones: [],
@@ -132,6 +133,7 @@ export default function App() {
       ...prev,
       alertas: [...prev.alertas, { 
         nombre: nuevaAlerta.nombre,
+        curso: nuevaAlerta.curso,
         asistenciaMes: nuevaAlerta.asistenciaMes,
         asistenciaAcum: nuevaAlerta.asistenciaAcum,
         accion: accionString,
@@ -141,6 +143,7 @@ export default function App() {
     
     setNuevaAlerta({
       nombre: '',
+      curso: '',
       asistenciaMes: '',
       asistenciaAcum: '',
       acciones: [],
@@ -350,11 +353,15 @@ export default function App() {
                 <label>Nombre Estudiante</label>
                 <input required type="text" value={nuevaAlerta.nombre} onChange={e => setNuevaAlerta({...nuevaAlerta, nombre: e.target.value})} />
               </div>
-              <div className="form-group" style={{ width: '100px', marginBottom: 0 }}>
+              <div className="form-group" style={{ width: '120px', marginBottom: 0 }}>
+                <label>Curso</label>
+                <input required type="text" placeholder="Ej: 1ro A" value={nuevaAlerta.curso || ''} onChange={e => setNuevaAlerta({...nuevaAlerta, curso: e.target.value})} />
+              </div>
+              <div className="form-group" style={{ width: '90px', marginBottom: 0 }}>
                 <label>% Mes</label>
                 <input required type="number" value={nuevaAlerta.asistenciaMes} onChange={e => setNuevaAlerta({...nuevaAlerta, asistenciaMes: e.target.value})} />
               </div>
-              <div className="form-group" style={{ width: '100px', marginBottom: 0 }}>
+              <div className="form-group" style={{ width: '90px', marginBottom: 0 }}>
                 <label>% Acum.</label>
                 <input required type="number" value={nuevaAlerta.asistenciaAcum} onChange={e => setNuevaAlerta({...nuevaAlerta, asistenciaAcum: e.target.value})} />
               </div>
@@ -431,6 +438,7 @@ export default function App() {
                   <thead>
                     <tr>
                       <th>Estudiante</th>
+                      <th>Curso</th>
                       <th>% Mes</th>
                       <th>% Acum</th>
                       <th>Acción</th>
@@ -441,6 +449,7 @@ export default function App() {
                     {data.alertas.map(a => (
                       <tr key={a.id}>
                         <td>{a.nombre}</td>
+                        <td>{a.curso || '-'}</td>
                         <td>{a.asistenciaMes}%</td>
                         <td>{a.asistenciaAcum}%</td>
                         <td>{a.accion}</td>
@@ -622,6 +631,7 @@ export default function App() {
                   <thead>
                     <tr>
                       <th>Nombre del Estudiante</th>
+                      <th>Curso</th>
                       <th>% Asistencia Mes</th>
                       <th>% Asistencia Acumulada</th>
                       <th>Acción Realizada (Derivación)</th>
@@ -631,6 +641,7 @@ export default function App() {
                     {data.alertas.map(a => (
                       <tr key={a.id}>
                         <td style={{ fontWeight: 500 }}>{a.nombre}</td>
+                        <td>{a.curso || '-'}</td>
                         <td>{a.asistenciaMes}%</td>
                         <td>{a.asistenciaAcum}%</td>
                         <td>
