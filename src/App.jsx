@@ -61,7 +61,7 @@ export default function App() {
         }
         const list = [];
         snapshot.forEach((docSnap) => {
-          list.push({ id: docSnap.id, ...docSnap.data() });
+          list.push({ ...defaultData, id: docSnap.id, ...docSnap.data() });
         });
         list.sort((a, b) => b.id.localeCompare(a.id));
         setReportesList(list);
@@ -138,7 +138,7 @@ export default function App() {
     const found = reportesList.find(r => r.id === id);
     if (found) {
       setCurrentId(id);
-      setData(found);
+      setData({ ...defaultData, ...found });
       setActiveTab('ingreso'); // Forzar la pestaña de ingreso para que puedan editar
     }
   };
@@ -198,7 +198,7 @@ export default function App() {
     let otraAccion = '';
 
     if (alerta.accion && alerta.accion !== 'Sin acción') {
-      const parts = alerta.accion.split(', ').map(p => p.trim());
+      const parts = String(alerta.accion).split(', ').map(p => p.trim());
       parts.forEach(part => {
         if (opcionesPredefinidas.includes(part)) {
           accionesSeleccionadas.push(part);
@@ -236,7 +236,7 @@ export default function App() {
     if (editandoAlertaId) {
       setData(prev => ({
         ...prev,
-        alertas: prev.alertas.map(a => a.id === editandoAlertaId ? {
+        alertas: (prev.alertas || []).map(a => a.id === editandoAlertaId ? {
           ...a,
           nombre: nuevaAlerta.nombre,
           curso: nuevaAlerta.curso,
@@ -250,7 +250,7 @@ export default function App() {
     } else {
       setData(prev => ({
         ...prev,
-        alertas: [...prev.alertas, { 
+        alertas: [...(prev.alertas || []), { 
           nombre: nuevaAlerta.nombre,
           curso: nuevaAlerta.curso,
           asistenciaMes: nuevaAlerta.asistenciaMes,
@@ -276,7 +276,7 @@ export default function App() {
   const handleRemoveAlerta = (id) => {
     setData(prev => ({
       ...prev,
-      alertas: prev.alertas.filter(a => a.id !== id)
+      alertas: (prev.alertas || []).filter(a => a.id !== id)
     }));
   };
 
@@ -649,7 +649,7 @@ export default function App() {
               </div>
             </form>
 
-            {data.alertas.length > 0 ? (
+            {(data.alertas || []).length > 0 ? (
               <div className="table-container">
                 <table>
                   <thead>
@@ -663,7 +663,7 @@ export default function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.alertas.map(a => (
+                    {(data.alertas || []).map(a => (
                       <tr key={a.id}>
                         <td>{a.nombre}</td>
                         <td>{a.curso || '-'}</td>
