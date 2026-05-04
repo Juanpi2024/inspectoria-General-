@@ -7,6 +7,11 @@ import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
 import './index.css';
 
+const CURSOS_OFICIALES = [
+  '7Y8', '1Y2 HC', '3Y4 HC', '1Y2 ELE', '3 ELEC', 
+  '4 ELEC', '1Y2 PAR', '3 PAR', '4 PAR'
+];
+
 const defaultData = {
   periodo: '',
   matriculaTotal: 136,
@@ -34,6 +39,10 @@ export default function App() {
   const [reportesList, setReportesList] = useState([]);
   const [currentId, setCurrentId] = useState(null);
   const [data, setData] = useState(defaultData);
+  const [searchTermAlertas, setSearchTermAlertas] = useState('');
+  const [searchTermLicencias, setSearchTermLicencias] = useState('');
+  const [showAlertaModal, setShowAlertaModal] = useState(false);
+  const [showLicenciaModal, setShowLicenciaModal] = useState(false);
 
   // Cargar desde Firebase en tiempo real con timeout de seguridad
   useEffect(() => {
@@ -201,16 +210,7 @@ export default function App() {
     return Array.from(nombres).sort();
   }, [reportesList, data.alertas, data.licencias]);
 
-  const uniqueCursos = useMemo(() => {
-    const cursos = new Set();
-    reportesList.forEach(r => {
-      (r.alertas || []).forEach(a => { if (a.curso) cursos.add(a.curso); });
-      (r.licencias || []).forEach(l => { if (l.curso) cursos.add(l.curso); });
-    });
-    (data.alertas || []).forEach(a => { if (a.curso) cursos.add(a.curso); });
-    (data.licencias || []).forEach(l => { if (l.curso) cursos.add(l.curso); });
-    return Array.from(cursos).sort();
-  }, [reportesList, data.alertas, data.licencias]);
+  const uniqueCursos = CURSOS_OFICIALES;
 
   const [nuevaLicencia, setNuevaLicencia] = useState({
     nombre: '',
@@ -280,6 +280,7 @@ export default function App() {
       otraAccion: otraAccion
     });
     setEditandoAlertaId(alerta.id);
+    setShowAlertaModal(true);
   };
 
   const handleAddAlerta = (e) => {
@@ -665,27 +666,56 @@ export default function App() {
       {subTab === 'licencias' && (
         <div className="animate-fade-in">
           <div className="card">
-            <h2>Expediente de Licencias Médicas</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-              Registre los alumnos con licencias. Esto actualizará el total de Casos Justificados y formará el expediente del alumno.
-            </p>
-            <form onSubmit={handleAddLicencia} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-              <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                <label>Nombre Estudiante</label>
-                <input required type="text" list="nombres-list" value={nuevaLicencia.nombre} onChange={e => setNuevaLicencia({...nuevaLicencia, nombre: e.target.value})} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h2 style={{ marginBottom: '0.25rem' }}>Expediente de Licencias Médicas</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
+                  Total: {(data.licencias || []).length} registros justificados.
+                </p>
               </div>
-              <div className="form-group" style={{ width: '120px', marginBottom: 0 }}>
-                <label>Curso</label>
-                <input required type="text" list="cursos-list" placeholder="Ej: 1ro A" value={nuevaLicencia.curso} onChange={e => setNuevaLicencia({...nuevaLicencia, curso: e.target.value})} />
+              <button className="primary" onClick={() => setShowLicenciaModal(true)}>+ Agregar Licencia</button>
+            </div>
+            
+            <div style={{ marginBottom: '1.5rem' }}>
+              <input 
+                type="text" 
+                placeholder="🔍 Buscar alumno por nombre..." 
+                value={searchTermLicencias}
+                onChange={e => setSearchTermLicencias(e.target.value)}
+                style={{ width: '100%', maxWidth: '400px' }}
+              />
+            </div>
+
+            {showLicenciaModal && (
+              <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '500px', margin: '1rem' }}>
+                  <h3 style={{ marginBottom: '1.5rem' }}>Nueva Licencia Médica</h3>
+                  <form onSubmit={(e) => { handleAddLicencia(e); setShowLicenciaModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Nombre Estudiante</label>
+                      <input required type="text" list="nombres-list" value={nuevaLicencia.nombre} onChange={e => setNuevaLicencia({...nuevaLicencia, nombre: e.target.value})} />
+                    </div>
+                    <div className="grid-2">
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>Curso</label>
+                        <select required value={nuevaLicencia.curso} onChange={e => setNuevaLicencia({...nuevaLicencia, curso: e.target.value})}>
+                          <option value="">Seleccione...</option>
+                          {CURSOS_OFICIALES.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>Días Justifica</label>
+                        <input required type="number" min="1" placeholder="Ej: 3" value={nuevaLicencia.diasJustificados} onChange={e => setNuevaLicencia({...nuevaLicencia, diasJustificados: e.target.value})} />
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                      <button type="button" className="secondary" style={{ flex: 1 }} onClick={() => setShowLicenciaModal(false)}>Cancelar</button>
+                      <button type="submit" className="primary" style={{ flex: 1 }}>Guardar</button>
+                    </div>
+                  </form>
+                </div>
               </div>
-              <div className="form-group" style={{ width: '120px', marginBottom: 0 }}>
-                <label>Días Justifica</label>
-                <input required type="number" min="1" placeholder="Ej: 3" value={nuevaLicencia.diasJustificados} onChange={e => setNuevaLicencia({...nuevaLicencia, diasJustificados: e.target.value})} />
-              </div>
-              <div style={{ marginBottom: '2px' }}>
-                <button type="submit" className="primary">Agregar</button>
-              </div>
-            </form>
+            )}
 
             {(data.licencias || []).length > 0 ? (
               <div className="table-container">
@@ -699,7 +729,9 @@ export default function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {(data.licencias || []).map(l => (
+                    {(data.licencias || [])
+                      .filter(l => l.nombre.toLowerCase().includes(searchTermLicencias.toLowerCase()))
+                      .map(l => (
                       <tr key={l.id}>
                         <td>{l.nombre}</td>
                         <td>{l.curso || '-'}</td>
@@ -728,119 +760,137 @@ export default function App() {
       {subTab === 'alertas' && (
         <div className="animate-fade-in">
           <div className="card">
-            <h2>Alerta Temprana de Repitencia (Evidencia Meta 14)</h2>
-            <form onSubmit={handleAddAlerta} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-              <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                <label>Nombre Estudiante</label>
-                <input required type="text" list="nombres-list" value={nuevaAlerta.nombre} onChange={e => setNuevaAlerta({...nuevaAlerta, nombre: e.target.value})} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h2 style={{ marginBottom: '0.25rem' }}>Alerta Temprana de Repitencia</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
+                  Estudiantes bajo umbral de asistencia (Meta 14).
+                </p>
               </div>
-              <div className="form-group" style={{ width: '120px', marginBottom: 0 }}>
-                <label>Curso</label>
-                <input required type="text" list="cursos-list" placeholder="Ej: 1ro A" value={nuevaAlerta.curso || ''} onChange={e => setNuevaAlerta({...nuevaAlerta, curso: e.target.value})} />
-              </div>
-              <div className="form-group" style={{ width: '90px', marginBottom: 0 }}>
-                <label>% Mes</label>
-                <input required type="number" value={nuevaAlerta.asistenciaMes} onChange={e => {
-                  const mes = e.target.value;
-                  let acum = nuevaAlerta.asistenciaAcum;
-                  if (mes !== '' && nuevaAlerta.asistenciaAcumAnterior !== '' && nuevaAlerta.asistenciaAcumAnterior !== undefined) {
-                    acum = Math.round((Number(nuevaAlerta.asistenciaAcumAnterior) + Number(mes)) / 2);
-                  }
-                  setNuevaAlerta({...nuevaAlerta, asistenciaMes: mes, asistenciaAcum: acum});
-                }} />
-              </div>
-              <div className="form-group" style={{ width: '90px', marginBottom: 0 }}>
-                <label>% Acum.</label>
-                <input required type="number" value={nuevaAlerta.asistenciaAcum} onChange={e => setNuevaAlerta({...nuevaAlerta, asistenciaAcum: e.target.value})} />
-              </div>
-              <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                <label>Acción Realizada</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {['Derivado a Dupla Psicosocial', 'Citación de apoderado/adulto', 'Entrevista Personal', 'Visita Domiciliaria'].map(op => {
-                    const isSelected = nuevaAlerta.acciones.includes(op);
-                    return (
-                      <label key={op} style={{ 
-                        display: 'inline-flex', alignItems: 'center', padding: '0.4rem 0.8rem', 
-                        background: isSelected ? 'var(--primary-glow)' : 'rgba(255,255,255,0.03)',
-                        border: `1px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}`,
-                        borderRadius: '20px', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem',
-                        color: isSelected ? '#fff' : 'var(--text-muted)'
-                      }}>
-                        <input 
-                          type="checkbox" 
-                          style={{ display: 'none' }}
-                          checked={isSelected}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setNuevaAlerta({...nuevaAlerta, acciones: [...nuevaAlerta.acciones, op]});
-                            } else {
-                              setNuevaAlerta({...nuevaAlerta, acciones: nuevaAlerta.acciones.filter(a => a !== op)});
-                            }
-                          }}
-                        /> {op}
-                      </label>
-                    );
-                  })}
-                  
-                  <label style={{ 
-                    display: 'inline-flex', alignItems: 'center', padding: '0.4rem 0.8rem', 
-                    background: nuevaAlerta.acciones.includes('Otra') ? 'var(--primary-glow)' : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${nuevaAlerta.acciones.includes('Otra') ? 'var(--primary)' : 'var(--border)'}`,
-                    borderRadius: '20px', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem',
-                    color: nuevaAlerta.acciones.includes('Otra') ? '#fff' : 'var(--text-muted)'
-                  }}>
-                    <input 
-                      type="checkbox" 
-                      style={{ display: 'none' }}
-                      checked={nuevaAlerta.acciones.includes('Otra')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setNuevaAlerta({...nuevaAlerta, acciones: [...nuevaAlerta.acciones, 'Otra']});
-                        } else {
-                          setNuevaAlerta({...nuevaAlerta, acciones: nuevaAlerta.acciones.filter(a => a !== 'Otra'), otraAccion: ''});
-                        }
-                      }}
-                    /> Otra
-                  </label>
+              <button className="primary" onClick={() => setShowAlertaModal(true)}>+ Agregar Alerta</button>
+            </div>
 
-                  {nuevaAlerta.acciones.includes('Otra') && (
-                    <input 
-                      type="text" 
-                      value={nuevaAlerta.otraAccion} 
-                      onChange={e => setNuevaAlerta({...nuevaAlerta, otraAccion: e.target.value})}
-                      style={{ 
-                        padding: '0.4rem 0.8rem', fontSize: '0.85rem', width: '200px', 
-                        borderRadius: '20px', background: 'rgba(15,23,42,0.6)', margin: 0 
-                      }}
-                      placeholder="Especifique cuál..."
-                    />
-                  )}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <input 
+                type="text" 
+                placeholder="🔍 Buscar alumno por nombre..." 
+                value={searchTermAlertas}
+                onChange={e => setSearchTermAlertas(e.target.value)}
+                style={{ width: '100%', maxWidth: '400px' }}
+              />
+            </div>
+
+            {(showAlertaModal || editandoAlertaId) && (
+              <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '600px', margin: '1rem', maxHeight: '90vh', overflowY: 'auto' }}>
+                  <h3 style={{ marginBottom: '1.5rem' }}>{editandoAlertaId ? 'Editar Alerta' : 'Nueva Alerta'}</h3>
+                  <form onSubmit={(e) => { handleAddAlerta(e); setShowAlertaModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Nombre Estudiante</label>
+                      <input required type="text" list="nombres-list" value={nuevaAlerta.nombre} onChange={e => setNuevaAlerta({...nuevaAlerta, nombre: e.target.value})} />
+                    </div>
+                    <div className="grid-3" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>Curso</label>
+                        <select required value={nuevaAlerta.curso} onChange={e => setNuevaAlerta({...nuevaAlerta, curso: e.target.value})}>
+                          <option value="">Seleccione...</option>
+                          {CURSOS_OFICIALES.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>% Mes</label>
+                        <input required type="number" value={nuevaAlerta.asistenciaMes} onChange={e => {
+                          const mes = e.target.value;
+                          let acum = nuevaAlerta.asistenciaAcum;
+                          if (mes !== '' && nuevaAlerta.asistenciaAcumAnterior !== '' && nuevaAlerta.asistenciaAcumAnterior !== undefined) {
+                            acum = Math.round((Number(nuevaAlerta.asistenciaAcumAnterior) + Number(mes)) / 2);
+                          }
+                          setNuevaAlerta({...nuevaAlerta, asistenciaMes: mes, asistenciaAcum: acum});
+                        }} />
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>% Acum.</label>
+                        <input required type="number" value={nuevaAlerta.asistenciaAcum} onChange={e => setNuevaAlerta({...nuevaAlerta, asistenciaAcum: e.target.value})} />
+                      </div>
+                    </div>
+                    
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Acción Realizada</label>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        {['Derivado a Dupla Psicosocial', 'Citación de apoderado/adulto', 'Entrevista Personal', 'Visita Domiciliaria'].map(op => {
+                          const isSelected = nuevaAlerta.acciones.includes(op);
+                          return (
+                            <label key={op} style={{ 
+                              display: 'inline-flex', alignItems: 'center', padding: '0.4rem 0.8rem', 
+                              background: isSelected ? 'var(--primary-glow)' : 'rgba(255,255,255,0.03)',
+                              border: `1px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}`,
+                              borderRadius: '20px', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem',
+                              color: isSelected ? '#fff' : 'var(--text-muted)'
+                            }}>
+                              <input 
+                                type="checkbox" 
+                                style={{ display: 'none' }}
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setNuevaAlerta({...nuevaAlerta, acciones: [...nuevaAlerta.acciones, op]});
+                                  } else {
+                                    setNuevaAlerta({...nuevaAlerta, acciones: nuevaAlerta.acciones.filter(a => a !== op)});
+                                  }
+                                }}
+                              /> {op}
+                            </label>
+                          );
+                        })}
+                        
+                        <label style={{ 
+                          display: 'inline-flex', alignItems: 'center', padding: '0.4rem 0.8rem', 
+                          background: nuevaAlerta.acciones.includes('Otra') ? 'var(--primary-glow)' : 'rgba(255,255,255,0.03)',
+                          border: `1px solid ${nuevaAlerta.acciones.includes('Otra') ? 'var(--primary)' : 'var(--border)'}`,
+                          borderRadius: '20px', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem',
+                          color: nuevaAlerta.acciones.includes('Otra') ? '#fff' : 'var(--text-muted)'
+                        }}>
+                          <input 
+                            type="checkbox" 
+                            style={{ display: 'none' }}
+                            checked={nuevaAlerta.acciones.includes('Otra')}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setNuevaAlerta({...nuevaAlerta, acciones: [...nuevaAlerta.acciones, 'Otra']});
+                              } else {
+                                setNuevaAlerta({...nuevaAlerta, acciones: nuevaAlerta.acciones.filter(a => a !== 'Otra'), otraAccion: ''});
+                              }
+                            }}
+                          /> Otra
+                        </label>
+      
+                        {nuevaAlerta.acciones.includes('Otra') && (
+                          <input 
+                            type="text" 
+                            value={nuevaAlerta.otraAccion} 
+                            onChange={e => setNuevaAlerta({...nuevaAlerta, otraAccion: e.target.value})}
+                            style={{ 
+                              padding: '0.4rem 0.8rem', fontSize: '0.85rem', width: '200px', 
+                              borderRadius: '20px', background: 'rgba(15,23,42,0.6)', margin: 0 
+                            }}
+                            placeholder="Especifique cuál..."
+                          />
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                      <button type="button" className="secondary" style={{ flex: 1 }} onClick={() => {
+                        setEditandoAlertaId(null);
+                        setShowAlertaModal(false);
+                        setNuevaAlerta({ nombre: '', curso: '', asistenciaMes: '', asistenciaAcum: '', asistenciaAcumAnterior: '', acciones: [], otraAccion: '' });
+                      }}>Cancelar</button>
+                      <button type="submit" className="primary" style={{ flex: 1 }}>{editandoAlertaId ? 'Actualizar' : 'Guardar'}</button>
+                    </div>
+                  </form>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2px' }}>
-                <button type="submit" className="primary">{editandoAlertaId ? 'Actualizar' : 'Agregar'}</button>
-                {editandoAlertaId && (
-                  <button 
-                    type="button" 
-                    className="secondary" 
-                    onClick={() => {
-                      setEditandoAlertaId(null);
-                      setNuevaAlerta({
-                        nombre: '',
-                        curso: '',
-                        asistenciaMes: '',
-                        asistenciaAcum: '',
-                        asistenciaAcumAnterior: '',
-                        acciones: [],
-                        otraAccion: ''
-                      });
-                    }}
-                  >
-                    Cancelar
-                  </button>
-                )}
-              </div>
-            </form>
+            )}
 
             {(data.alertas || []).length > 0 ? (
               <div className="table-container">
@@ -856,7 +906,9 @@ export default function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {(data.alertas || []).map(a => (
+                    {(data.alertas || [])
+                      .filter(a => a.nombre.toLowerCase().includes(searchTermAlertas.toLowerCase()))
+                      .map(a => (
                       <tr key={a.id}>
                         <td>{a.nombre}</td>
                         <td>{a.curso || '-'}</td>
