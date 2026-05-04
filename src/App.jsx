@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Save, FileText, TrendingUp, TrendingDown, Minus, 
-  UserPlus, UserMinus, AlertTriangle, CheckCircle, Info, Printer, Loader2, Plus, Calendar
+  UserPlus, UserMinus, AlertTriangle, CheckCircle, Info, Printer, Loader2, Plus, Calendar, Cloud, CloudOff, RefreshCw
 } from 'lucide-react';
 import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
@@ -25,44 +25,99 @@ const defaultData = {
 export default function App() {
   const [activeTab, setActiveTab] = useState('ingreso');
   const [loading, setLoading] = useState(true);
+  const [loadingMsg, setLoadingMsg] = useState('Conectando con la base de datos...');
+  const [offlineMode, setOfflineMode] = useState(false);
+  const [configError, setConfigError] = useState(null);
   const [reportesList, setReportesList] = useState([]);
   const [currentId, setCurrentId] = useState(null);
   const [data, setData] = useState(defaultData);
 
-  // Cargar desde Firebase en tiempo real
+  // Cargar desde Firebase en tiempo real con timeout de seguridad
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'reportes'), (snapshot) => {
-      const list = [];
-      snapshot.forEach((docSnap) => {
-        list.push({ id: docSnap.id, ...docSnap.data() });
-      });
-      list.sort((a, b) => b.id.localeCompare(a.id));
-      setReportesList(list);
+    let unsubscribe = () => {};
+    let resolved = false;
 
-      // Si recién cargamos y no hay id seleccionado, elegir el primero
-      setLoading(prevLoading => {
-        if (prevLoading && list.length > 0) {
-          setCurrentId(current => {
-             if (!current) {
-               setData(list[0]);
-               return list[0].id;
-             }
-             return current;
-          });
+    // Timeout: si en 5 segundos no carga, arrancar sin Firebase
+    const timeout = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        console.warn("⏱️ Timeout: Firestore no respondió en 5s. Iniciando en modo offline.");
+        setOfflineMode(true);
+        setLoading(false);
+      }
+    }, 5000);
+
+    // Mensaje progresivo
+    const msgTimer = setTimeout(() => {
+      if (!resolved) setLoadingMsg('Verificando base de datos Firestore...');
+    }, 2000);
+
+    try {
+      unsubscribe = onSnapshot(collection(db, 'reportes'), (snapshot) => {
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timeout);
+          clearTimeout(msgTimer);
         }
-        return false;
-      });
-    }, (error) => {
-      console.error("Error al cargar datos desde Firebase:", error);
-      setLoading(false);
-    });
+        const list = [];
+        snapshot.forEach((docSnap) => {
+          list.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        list.sort((a, b) => b.id.localeCompare(a.id));
+        setReportesList(list);
+        setOfflineMode(false);
+        setConfigError(null);
 
-    return () => unsubscribe();
+        // Si recién cargamos y no hay id seleccionado, elegir el primero
+        setLoading(prevLoading => {
+          if (prevLoading && list.length > 0) {
+            setCurrentId(current => {
+               if (!current) {
+                 setData(list[0]);
+                 return list[0].id;
+               }
+               return current;
+            });
+          }
+          return false;
+        });
+      }, (error) => {
+        console.error("Error al cargar datos desde Firebase:", error);
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timeout);
+          clearTimeout(msgTimer);
+        }
+        
+        // Detectar si la base de datos no existe
+        if (error.code === 'not-found' || error.message.includes('database')) {
+          setConfigError('DATABASE_MISSING');
+        } else {
+          setOfflineMode(true);
+        }
+        setLoading(false);
+      });
+    } catch (err) {
+      console.error("Error al inicializar Firestore:", err);
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timeout);
+        clearTimeout(msgTimer);
+        setOfflineMode(true);
+        setLoading(false);
+      }
+    }
+
+    return () => {
+      clearTimeout(timeout);
+      clearTimeout(msgTimer);
+      unsubscribe();
+    };
   }, []);
 
-  // Guardar en Firebase cuando hay cambios
+  // Guardar en Firebase cuando hay cambios (solo si no estamos offline)
   useEffect(() => {
-    if (loading || !currentId) return;
+    if (loading || !currentId || offlineMode) return;
     
     const timer = setTimeout(async () => {
       try {
@@ -72,10 +127,10 @@ export default function App() {
       } catch (err) {
         console.error("Error al guardar en Firebase:", err);
       }
-    }, 1000); // 1 segundo de debounce para evitar muchas escrituras
+    }, 1000);
     
     return () => clearTimeout(timer);
-  }, [data, loading, currentId]);
+  }, [data, loading, currentId, offlineMode]);
 
   const handleSelectReporte = (id) => {
     // Si hay datos, primero podríamos forzar un guardado si quisieramos, pero
@@ -108,6 +163,7 @@ export default function App() {
     acciones: [],
     otraAccion: ''
   });
+  const [editandoAlertaId, setEditandoAlertaId] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -115,6 +171,34 @@ export default function App() {
       ...prev,
       [name]: type === 'number' ? Number(value) : value
     }));
+  };
+
+  const handleEditAlerta = (alerta) => {
+    const opcionesPredefinidas = ['Derivado a Dupla Psicosocial', 'Citación de apoderado/adulto', 'Entrevista Personal', 'Visita Domiciliaria'];
+    let accionesSeleccionadas = [];
+    let otraAccion = '';
+
+    if (alerta.accion && alerta.accion !== 'Sin acción') {
+      const parts = alerta.accion.split(', ').map(p => p.trim());
+      parts.forEach(part => {
+        if (opcionesPredefinidas.includes(part)) {
+          accionesSeleccionadas.push(part);
+        } else {
+          accionesSeleccionadas.push('Otra');
+          otraAccion = part;
+        }
+      });
+    }
+
+    setNuevaAlerta({
+      nombre: alerta.nombre,
+      curso: alerta.curso || '',
+      asistenciaMes: alerta.asistenciaMes,
+      asistenciaAcum: alerta.asistenciaAcum,
+      acciones: accionesSeleccionadas,
+      otraAccion: otraAccion
+    });
+    setEditandoAlertaId(alerta.id);
   };
 
   const handleAddAlerta = (e) => {
@@ -129,17 +213,32 @@ export default function App() {
     }
     const accionString = finalAcciones.length > 0 ? finalAcciones.join(', ') : 'Sin acción';
     
-    setData(prev => ({
-      ...prev,
-      alertas: [...prev.alertas, { 
-        nombre: nuevaAlerta.nombre,
-        curso: nuevaAlerta.curso,
-        asistenciaMes: nuevaAlerta.asistenciaMes,
-        asistenciaAcum: nuevaAlerta.asistenciaAcum,
-        accion: accionString,
-        id: Date.now() 
-      }]
-    }));
+    if (editandoAlertaId) {
+      setData(prev => ({
+        ...prev,
+        alertas: prev.alertas.map(a => a.id === editandoAlertaId ? {
+          ...a,
+          nombre: nuevaAlerta.nombre,
+          curso: nuevaAlerta.curso,
+          asistenciaMes: nuevaAlerta.asistenciaMes,
+          asistenciaAcum: nuevaAlerta.asistenciaAcum,
+          accion: accionString,
+        } : a)
+      }));
+      setEditandoAlertaId(null);
+    } else {
+      setData(prev => ({
+        ...prev,
+        alertas: [...prev.alertas, { 
+          nombre: nuevaAlerta.nombre,
+          curso: nuevaAlerta.curso,
+          asistenciaMes: nuevaAlerta.asistenciaMes,
+          asistenciaAcum: nuevaAlerta.asistenciaAcum,
+          accion: accionString,
+          id: Date.now() 
+        }]
+      }));
+    }
     
     setNuevaAlerta({
       nombre: '',
@@ -170,14 +269,63 @@ export default function App() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--primary)' }}>
-        <Loader2 className="animate-spin" size={48} />
+      <div className="loading-screen">
+        <div className="loading-card">
+          <Loader2 className="animate-spin" size={48} style={{ color: 'var(--primary)' }} />
+          <h2 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>Sistema Inspectoría CEIA</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{loadingMsg}</p>
+          <div className="loading-bar">
+            <div className="loading-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (configError === 'DATABASE_MISSING') {
+    return (
+      <div className="loading-screen">
+        <div className="card animate-fade-in" style={{ maxWidth: '600px', textAlign: 'center', padding: '3rem' }}>
+          <AlertTriangle size={64} className="status-yellow" style={{ marginBottom: '1.5rem' }} />
+          <h2 style={{ fontSize: '1.75rem' }}>Configuración Necesaria</h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', lineHeight: '1.6' }}>
+            La base de datos Firestore aún no ha sido creada en tu proyecto de Firebase.<br/>
+            Para activar la sincronización en la nube, sigue estos pasos:
+          </p>
+          <div style={{ textAlign: 'left', background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem' }}>
+            <ol style={{ paddingLeft: '1.5rem' }}>
+              <li style={{ marginBottom: '0.5rem' }}>Ve a la <a href="https://console.firebase.google.com/project/inspectoria-ceia-2026/firestore" target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>Consola de Firebase</a>.</li>
+              <li style={{ marginBottom: '0.5rem' }}>Haz clic en <strong>"Crear base de datos"</strong>.</li>
+              <li style={{ marginBottom: '0.5rem' }}>Selecciona el modo <strong>"Prueba"</strong> (o Producción si prefieres).</li>
+              <li>Elige una ubicación (ej: <code>us-east1</code>) y haz clic en crear.</li>
+            </ol>
+          </div>
+          <button className="primary" onClick={() => setConfigError(null)}>
+            Trabajar en Modo Local mientras tanto
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="app-container">
+      {offlineMode && (
+        <div className="no-print" style={{ 
+          background: 'rgba(245, 158, 11, 0.1)', 
+          border: '1px solid var(--warning)', 
+          padding: '0.75rem', 
+          borderRadius: '8px', 
+          marginBottom: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          fontSize: '0.9rem'
+        }}>
+          <Info size={16} className="status-yellow" />
+          <span><strong>Modo Offline:</strong> Los datos se guardarán solo en esta sesión. Conecte Firebase para sincronización permanente.</span>
+        </div>
+      )}
       <header className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ textAlign: 'left' }}>Sistema Inspectoría CEIA</h1>
@@ -185,6 +333,23 @@ export default function App() {
         </div>
         
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className="no-print" style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem', 
+            padding: '0.4rem 0.8rem', 
+            background: offlineMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+            borderRadius: '20px',
+            fontSize: '0.85rem',
+            border: `1px solid ${offlineMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
+            marginRight: '0.5rem'
+          }}>
+            {offlineMode ? (
+              <><CloudOff size={14} className="status-red" /> <span className="status-red">Modo Local</span></>
+            ) : (
+              <><Cloud size={14} className="status-green" /> <span className="status-green">Sincronizado</span></>
+            )}
+          </div>
           <select 
             value={currentId || ''} 
             onChange={(e) => handleSelectReporte(e.target.value)}
@@ -429,7 +594,28 @@ export default function App() {
                   )}
                 </div>
               </div>
-              <button type="submit" className="primary" style={{ marginBottom: '2px' }}>Agregar</button>
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2px' }}>
+                <button type="submit" className="primary">{editandoAlertaId ? 'Actualizar' : 'Agregar'}</button>
+                {editandoAlertaId && (
+                  <button 
+                    type="button" 
+                    className="secondary" 
+                    onClick={() => {
+                      setEditandoAlertaId(null);
+                      setNuevaAlerta({
+                        nombre: '',
+                        curso: '',
+                        asistenciaMes: '',
+                        asistenciaAcum: '',
+                        acciones: [],
+                        otraAccion: ''
+                      });
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </div>
             </form>
 
             {data.alertas.length > 0 ? (
@@ -454,6 +640,13 @@ export default function App() {
                         <td>{a.asistenciaAcum}%</td>
                         <td>{a.accion}</td>
                         <td>
+                          <button 
+                            className="secondary" 
+                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', marginRight: '0.5rem' }}
+                            onClick={() => handleEditAlerta(a)}
+                          >
+                            Editar
+                          </button>
                           <button 
                             className="danger" 
                             style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
