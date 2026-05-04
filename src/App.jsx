@@ -153,6 +153,7 @@ export default function App() {
     const alertasPrecargadas = (data.alertas || []).map((a, idx) => ({
       ...a,
       asistenciaMes: '',
+      asistenciaAcumAnterior: a.asistenciaAcum || '',
       asistenciaAcum: '',
       accion: 'Sin acción',
       id: Date.now() + idx
@@ -177,6 +178,7 @@ export default function App() {
     curso: '',
     asistenciaMes: '',
     asistenciaAcum: '',
+    asistenciaAcumAnterior: '',
     acciones: [],
     otraAccion: ''
   });
@@ -212,6 +214,7 @@ export default function App() {
       curso: alerta.curso || '',
       asistenciaMes: alerta.asistenciaMes,
       asistenciaAcum: alerta.asistenciaAcum,
+      asistenciaAcumAnterior: alerta.asistenciaAcumAnterior || '',
       acciones: accionesSeleccionadas,
       otraAccion: otraAccion
     });
@@ -239,6 +242,7 @@ export default function App() {
           curso: nuevaAlerta.curso,
           asistenciaMes: nuevaAlerta.asistenciaMes,
           asistenciaAcum: nuevaAlerta.asistenciaAcum,
+          asistenciaAcumAnterior: nuevaAlerta.asistenciaAcumAnterior,
           accion: accionString,
         } : a)
       }));
@@ -251,6 +255,7 @@ export default function App() {
           curso: nuevaAlerta.curso,
           asistenciaMes: nuevaAlerta.asistenciaMes,
           asistenciaAcum: nuevaAlerta.asistenciaAcum,
+          asistenciaAcumAnterior: nuevaAlerta.asistenciaAcumAnterior,
           accion: accionString,
           id: Date.now() 
         }]
@@ -262,6 +267,7 @@ export default function App() {
       curso: '',
       asistenciaMes: '',
       asistenciaAcum: '',
+      asistenciaAcumAnterior: '',
       acciones: [],
       otraAccion: ''
     });
@@ -541,7 +547,14 @@ export default function App() {
               </div>
               <div className="form-group" style={{ width: '90px', marginBottom: 0 }}>
                 <label>% Mes</label>
-                <input required type="number" value={nuevaAlerta.asistenciaMes} onChange={e => setNuevaAlerta({...nuevaAlerta, asistenciaMes: e.target.value})} />
+                <input required type="number" value={nuevaAlerta.asistenciaMes} onChange={e => {
+                  const mes = e.target.value;
+                  let acum = nuevaAlerta.asistenciaAcum;
+                  if (mes !== '' && nuevaAlerta.asistenciaAcumAnterior !== '' && nuevaAlerta.asistenciaAcumAnterior !== undefined) {
+                    acum = Math.round((Number(nuevaAlerta.asistenciaAcumAnterior) + Number(mes)) / 2);
+                  }
+                  setNuevaAlerta({...nuevaAlerta, asistenciaMes: mes, asistenciaAcum: acum});
+                }} />
               </div>
               <div className="form-group" style={{ width: '90px', marginBottom: 0 }}>
                 <label>% Acum.</label>
@@ -624,6 +637,7 @@ export default function App() {
                         curso: '',
                         asistenciaMes: '',
                         asistenciaAcum: '',
+                        asistenciaAcumAnterior: '',
                         acciones: [],
                         otraAccion: ''
                       });
