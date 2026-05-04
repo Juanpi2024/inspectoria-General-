@@ -148,7 +148,24 @@ export default function App() {
     if (!monthYear) return;
     
     const id = monthYear.toLowerCase().replace(/\s+/g, '-');
-    const newData = { ...defaultData, periodo: monthYear };
+    
+    // Precargar alumnos y calcular nueva matrícula inicial
+    const alertasPrecargadas = (data.alertas || []).map((a, idx) => ({
+      ...a,
+      asistenciaMes: '',
+      asistenciaAcum: '',
+      accion: 'Sin acción',
+      id: Date.now() + idx
+    }));
+
+    const matriculaCalculada = (Number(data.matriculaTotal) || 0) + (Number(data.nuevasIncorporaciones) || 0) - (Number(data.retirosEfectivos) || 0);
+
+    const newData = { 
+      ...defaultData, 
+      periodo: monthYear,
+      matriculaTotal: matriculaCalculada > 0 ? matriculaCalculada : 136,
+      alertas: alertasPrecargadas 
+    };
     
     setCurrentId(id);
     setData(newData);
@@ -413,7 +430,7 @@ export default function App() {
                 />
               </div>
               <div className="form-group">
-                <label>Matrícula Total (Meta ≥ 136)</label>
+                <label>Matrícula Inicial del Mes (Base)</label>
                 <input 
                   type="number" 
                   name="matriculaTotal" 
@@ -707,13 +724,13 @@ export default function App() {
               
               {/* Matrícula */}
               <div className="metric-card">
-                <div className="metric-title">Matrícula Total</div>
-                <div className={`metric-value ${data.matriculaTotal >= 136 ? 'status-green' : 'status-red'}`}>
-                  {data.matriculaTotal}
+                <div className="metric-title">Matrícula Final (Mes)</div>
+                <div className={`metric-value ${((Number(data.matriculaTotal) || 0) + (Number(data.nuevasIncorporaciones) || 0) - (Number(data.retirosEfectivos) || 0)) >= 136 ? 'status-green' : 'status-red'}`}>
+                  {(Number(data.matriculaTotal) || 0) + (Number(data.nuevasIncorporaciones) || 0) - (Number(data.retirosEfectivos) || 0)}
                 </div>
                 <div className="metric-meta">
                   Meta ≥ 136 | 
-                  {data.matriculaTotal >= 136 ? 
+                  {((Number(data.matriculaTotal) || 0) + (Number(data.nuevasIncorporaciones) || 0) - (Number(data.retirosEfectivos) || 0)) >= 136 ? 
                     <><CheckCircle size={14} className="status-green" /> Cumple</> : 
                     <><AlertTriangle size={14} className="status-red" /> Riesgo</>
                   }
