@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Save, FileText, TrendingUp, TrendingDown, Minus, 
   UserPlus, UserMinus, AlertTriangle, CheckCircle, Info, Printer, Loader2, Plus, Calendar, Cloud, CloudOff, RefreshCw
@@ -16,6 +16,7 @@ const defaultData = {
   retirosEfectivos: 0,
   analisisPermanencia: '',
   alertas: [],
+  licencias: [],
   casosDeserciones: 0,
   casosLicencias: 0,
   casosCambios: 0,
@@ -24,6 +25,8 @@ const defaultData = {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('ingreso');
+  const [subTab, setSubTab] = useState('resumen');
+  const [saveStatus, setSaveStatus] = useState('saved');
   const [loading, setLoading] = useState(true);
   const [loadingMsg, setLoadingMsg] = useState('Conectando con la base de datos...');
   const [offlineMode, setOfflineMode] = useState(false);
@@ -119,13 +122,16 @@ export default function App() {
   useEffect(() => {
     if (loading || !currentId || offlineMode) return;
     
+    setSaveStatus('saving');
     const timer = setTimeout(async () => {
       try {
         const docRef = doc(db, 'reportes', currentId);
         const { id, ...dataToSave } = data; 
         await setDoc(docRef, dataToSave, { merge: true });
+        setSaveStatus('saved');
       } catch (err) {
         console.error("Error al guardar en Firebase:", err);
+        setSaveStatus('error');
       }
     }, 1000);
     
@@ -183,6 +189,61 @@ export default function App() {
     otraAccion: ''
   });
   const [editandoAlertaId, setEditandoAlertaId] = useState(null);
+
+  const uniqueNombres = useMemo(() => {
+    const nombres = new Set();
+    reportesList.forEach(r => {
+      (r.alertas || []).forEach(a => { if (a.nombre) nombres.add(a.nombre); });
+      (r.licencias || []).forEach(l => { if (l.nombre) nombres.add(l.nombre); });
+    });
+    (data.alertas || []).forEach(a => { if (a.nombre) nombres.add(a.nombre); });
+    (data.licencias || []).forEach(l => { if (l.nombre) nombres.add(l.nombre); });
+    return Array.from(nombres).sort();
+  }, [reportesList, data.alertas, data.licencias]);
+
+  const uniqueCursos = useMemo(() => {
+    const cursos = new Set();
+    reportesList.forEach(r => {
+      (r.alertas || []).forEach(a => { if (a.curso) cursos.add(a.curso); });
+      (r.licencias || []).forEach(l => { if (l.curso) cursos.add(l.curso); });
+    });
+    (data.alertas || []).forEach(a => { if (a.curso) cursos.add(a.curso); });
+    (data.licencias || []).forEach(l => { if (l.curso) cursos.add(l.curso); });
+    return Array.from(cursos).sort();
+  }, [reportesList, data.alertas, data.licencias]);
+
+  const [nuevaLicencia, setNuevaLicencia] = useState({
+    nombre: '',
+    curso: '',
+    diasJustificados: ''
+  });
+
+  const handleAddLicencia = (e) => {
+    e.preventDefault();
+    if (!nuevaLicencia.nombre) return;
+    
+    setData(prev => {
+      const newLicencias = [...(prev.licencias || []), { ...nuevaLicencia, id: Date.now() }];
+      return {
+        ...prev,
+        licencias: newLicencias,
+        casosLicencias: newLicencias.length
+      };
+    });
+    
+    setNuevaLicencia({ nombre: '', curso: '', diasJustificados: '' });
+  };
+
+  const handleRemoveLicencia = (id) => {
+    setData(prev => {
+      const newLicencias = (prev.licencias || []).filter(l => l.id !== id);
+      return {
+        ...prev,
+        licencias: newLicencias,
+        casosLicencias: newLicencias.length
+      };
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -333,6 +394,12 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <datalist id="nombres-list">
+        {uniqueNombres.map(n => <option key={n} value={n} />)}
+      </datalist>
+      <datalist id="cursos-list">
+        {uniqueCursos.map(c => <option key={c} value={c} />)}
+      </datalist>
       {offlineMode && (
         <div className="no-print" style={{ 
           background: 'rgba(245, 158, 11, 0.1)', 
@@ -356,6 +423,18 @@ export default function App() {
         </div>
         
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          {currentId && !offlineMode && (
+            <div className="no-print" style={{ 
+              fontSize: '0.85rem', 
+              color: saveStatus === 'saving' ? 'var(--text-muted)' : (saveStatus === 'error' ? 'var(--red)' : 'var(--green)'), 
+              display: 'flex', alignItems: 'center', gap: '0.25rem',
+              opacity: saveStatus === 'saved' ? 0.7 : 1
+            }}>
+              {saveStatus === 'saving' ? <><RefreshCw size={14} className="animate-spin" /> Guardando...</> : 
+               saveStatus === 'error' ? <><AlertTriangle size={14} /> Error al guardar</> : 
+               <><CheckCircle size={14} /> Guardado</>}
+            </div>
+          )}
           <div className="no-print" style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -422,8 +501,41 @@ export default function App() {
 
       {currentId && activeTab === 'ingreso' && (
         <div className="animate-fade-in no-print">
-          <div className="card">
-            <h2>Datos Generales del Periodo</h2>
+          <div className="tabs sub-tabs" style={{ marginBottom: '1.5rem', background: 'rgba(0,0,0,0.2)', padding: '0.4rem', borderRadius: '12px', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button className={`tab ${subTab === 'resumen' ? 'active' : ''}`} onClick={() => setSubTab('resumen')} style={{flex: 1, padding: '0.5rem'}}>📊 Resumen</button>
+            <button className={`tab ${subTab === 'matricula' ? 'active' : ''}`} onClick={() => setSubTab('matricula')} style={{flex: 1, padding: '0.5rem'}}>🏢 Matrícula</button>
+            <button className={`tab ${subTab === 'alertas' ? 'active' : ''}`} onClick={() => setSubTab('alertas')} style={{flex: 1, padding: '0.5rem'}}>⚠️ Alertas</button>
+            <button className={`tab ${subTab === 'licencias' ? 'active' : ''}`} onClick={() => setSubTab('licencias')} style={{flex: 1, padding: '0.5rem'}}>🩺 Licencias</button>
+          </div>
+
+          {subTab === 'resumen' && (
+            <div className="grid-2 animate-fade-in">
+              <div className="card" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+                <h3 style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>Alumnos en Riesgo</h3>
+                <div style={{ fontSize: '4rem', fontWeight: 'bold', color: (data.alertas||[]).length > 0 ? 'var(--red)' : 'var(--green)', lineHeight: 1 }}>
+                  {(data.alertas||[]).length}
+                </div>
+                <p style={{ marginTop: '1rem' }}>Estudiantes en Alerta Temprana</p>
+                <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                  {(data.alertas||[]).filter(a => a.accion === 'Sin acción').length} sin acción tomada
+                </div>
+                <button className="primary" style={{ marginTop: '1.5rem' }} onClick={() => setSubTab('alertas')}>Gestionar Alertas</button>
+              </div>
+              <div className="card" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+                <h3 style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>Licencias este Mes</h3>
+                <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'var(--primary)', lineHeight: 1 }}>
+                  {(data.licencias||[]).length}
+                </div>
+                <p style={{ marginTop: '1rem' }}>Casos justificados en expediente</p>
+                <button className="secondary" style={{ marginTop: '1.5rem' }} onClick={() => setSubTab('licencias')}>Ver Licencias</button>
+              </div>
+            </div>
+          )}
+
+          {subTab === 'matricula' && (
+            <div className="animate-fade-in">
+              <div className="card">
+                <h2>Datos Generales del Periodo</h2>
             <div className="grid-2">
               <div className="form-group">
                 <label>Periodo (Mes / Año)</label>
@@ -519,7 +631,9 @@ export default function App() {
                   type="number" 
                   name="casosLicencias" 
                   value={data.casosLicencias} 
-                  onChange={handleChange} 
+                  disabled
+                  title="Calculado automáticamente desde el Expediente de Licencias Médicas"
+                  style={{ background: 'rgba(0,0,0,0.2)', color: 'var(--text-muted)' }}
                 />
               </div>
               <div className="form-group">
@@ -535,15 +649,94 @@ export default function App() {
           </div>
 
           <div className="card">
+            <h2>Observaciones y Requerimientos</h2>
+            <div className="form-group">
+              <textarea 
+                name="observaciones" 
+                value={data.observaciones} 
+                onChange={handleChange}
+                placeholder="Solicitudes de recursos, nudos críticos (ej. falta de firmas, desfase SIGE)..."
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {subTab === 'licencias' && (
+        <div className="animate-fade-in">
+          <div className="card">
+            <h2>Expediente de Licencias Médicas</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+              Registre los alumnos con licencias. Esto actualizará el total de Casos Justificados y formará el expediente del alumno.
+            </p>
+            <form onSubmit={handleAddLicencia} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+              <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                <label>Nombre Estudiante</label>
+                <input required type="text" list="nombres-list" value={nuevaLicencia.nombre} onChange={e => setNuevaLicencia({...nuevaLicencia, nombre: e.target.value})} />
+              </div>
+              <div className="form-group" style={{ width: '120px', marginBottom: 0 }}>
+                <label>Curso</label>
+                <input required type="text" list="cursos-list" placeholder="Ej: 1ro A" value={nuevaLicencia.curso} onChange={e => setNuevaLicencia({...nuevaLicencia, curso: e.target.value})} />
+              </div>
+              <div className="form-group" style={{ width: '120px', marginBottom: 0 }}>
+                <label>Días Justifica</label>
+                <input required type="number" min="1" placeholder="Ej: 3" value={nuevaLicencia.diasJustificados} onChange={e => setNuevaLicencia({...nuevaLicencia, diasJustificados: e.target.value})} />
+              </div>
+              <div style={{ marginBottom: '2px' }}>
+                <button type="submit" className="primary">Agregar</button>
+              </div>
+            </form>
+
+            {(data.licencias || []).length > 0 ? (
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Estudiante</th>
+                      <th>Curso</th>
+                      <th>Días Justificados</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(data.licencias || []).map(l => (
+                      <tr key={l.id}>
+                        <td>{l.nombre}</td>
+                        <td>{l.curso || '-'}</td>
+                        <td>{l.diasJustificados} días</td>
+                        <td style={{ textAlign: 'right' }}>
+                          <button 
+                            className="danger" 
+                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+                            onClick={() => handleRemoveLicencia(l.id)}
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p style={{ color: 'var(--text-muted)' }}>No hay licencias registradas en este periodo.</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {subTab === 'alertas' && (
+        <div className="animate-fade-in">
+          <div className="card">
             <h2>Alerta Temprana de Repitencia (Evidencia Meta 14)</h2>
             <form onSubmit={handleAddAlerta} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
               <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                 <label>Nombre Estudiante</label>
-                <input required type="text" value={nuevaAlerta.nombre} onChange={e => setNuevaAlerta({...nuevaAlerta, nombre: e.target.value})} />
+                <input required type="text" list="nombres-list" value={nuevaAlerta.nombre} onChange={e => setNuevaAlerta({...nuevaAlerta, nombre: e.target.value})} />
               </div>
               <div className="form-group" style={{ width: '120px', marginBottom: 0 }}>
                 <label>Curso</label>
-                <input required type="text" placeholder="Ej: 1ro A" value={nuevaAlerta.curso || ''} onChange={e => setNuevaAlerta({...nuevaAlerta, curso: e.target.value})} />
+                <input required type="text" list="cursos-list" placeholder="Ej: 1ro A" value={nuevaAlerta.curso || ''} onChange={e => setNuevaAlerta({...nuevaAlerta, curso: e.target.value})} />
               </div>
               <div className="form-group" style={{ width: '90px', marginBottom: 0 }}>
                 <label>% Mes</label>
@@ -669,8 +862,27 @@ export default function App() {
                         <td>{a.curso || '-'}</td>
                         <td>{a.asistenciaMes}%</td>
                         <td>{a.asistenciaAcum}%</td>
-                        <td>{a.accion}</td>
                         <td>
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '12px',
+                            fontSize: '0.8rem',
+                            fontWeight: 600,
+                            background: a.accion === 'Sin acción' ? 'rgba(239, 68, 68, 0.15)' : 
+                                        a.accion.includes('Citación') ? 'rgba(245, 158, 11, 0.15)' : 
+                                        'rgba(16, 185, 129, 0.15)',
+                            color: a.accion === 'Sin acción' ? 'var(--red)' : 
+                                   a.accion.includes('Citación') ? 'var(--warning)' : 
+                                   'var(--green)',
+                            border: `1px solid ${a.accion === 'Sin acción' ? 'rgba(239, 68, 68, 0.3)' : 
+                                               a.accion.includes('Citación') ? 'rgba(245, 158, 11, 0.3)' : 
+                                               'rgba(16, 185, 129, 0.3)'}`
+                          }}>
+                            {a.accion}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
                           <button 
                             className="secondary" 
                             style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', marginRight: '0.5rem' }}
@@ -695,18 +907,8 @@ export default function App() {
               <p style={{ color: 'var(--text-muted)' }}>No hay estudiantes en alerta registrados.</p>
             )}
           </div>
-
-          <div className="card">
-            <h2>Observaciones y Requerimientos</h2>
-            <div className="form-group">
-              <textarea 
-                name="observaciones" 
-                value={data.observaciones} 
-                onChange={handleChange}
-                placeholder="Solicitudes de recursos, nudos críticos (ej. falta de firmas, desfase SIGE)..."
-              />
-            </div>
-          </div>
+        </div>
+      )}
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', gap: '1rem' }}>
              <button className="secondary" onClick={clearData}>Limpiar Datos</button>
@@ -892,7 +1094,41 @@ export default function App() {
           </div>
 
           <div className="card">
-            <h2>5. Observaciones y Requerimientos</h2>
+            <h2>5. Expediente de Licencias Médicas</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+              Registro detallado de justificaciones por salud. Total: {data.casosLicencias} casos.
+            </p>
+            
+            {(data.licencias || []).length > 0 ? (
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nombre del Estudiante</th>
+                      <th>Curso</th>
+                      <th>Días Justificados</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(data.licencias || []).map(l => (
+                      <tr key={l.id}>
+                        <td style={{ fontWeight: 500 }}>{l.nombre}</td>
+                        <td>{l.curso || '-'}</td>
+                        <td>{l.diasJustificados}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p style={{ padding: '1rem', textAlign: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                No se registraron licencias médicas en este periodo.
+              </p>
+            )}
+          </div>
+
+          <div className="card">
+            <h2>6. Observaciones y Requerimientos</h2>
             <p style={{ 
               padding: '1rem', 
               background: 'rgba(255,255,255,0.03)', 
