@@ -564,11 +564,35 @@ export default function App() {
 
       {currentId && activeTab === 'ingreso' && (
         <div className="animate-fade-in no-print">
-          <div className="tabs sub-tabs no-print" style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.35rem', padding: '0.4rem', flexWrap: 'wrap' }}>
-            <button className={`tab ${subTab === 'resumen' ? 'active' : ''}`} onClick={() => setSubTab('resumen')} style={{flex: 1, padding: '0.55rem', fontSize: '0.85rem'}}>📊 Resumen</button>
-            <button className={`tab ${subTab === 'matricula' ? 'active' : ''}`} onClick={() => setSubTab('matricula')} style={{flex: 1, padding: '0.55rem', fontSize: '0.85rem'}}>🏢 Matrícula</button>
-            <button className={`tab ${subTab === 'alertas' ? 'active' : ''}`} onClick={() => setSubTab('alertas')} style={{flex: 1, padding: '0.55rem', fontSize: '0.85rem'}}>⚠️ Alertas</button>
-            <button className={`tab ${subTab === 'licencias' ? 'active' : ''}`} onClick={() => setSubTab('licencias')} style={{flex: 1, padding: '0.55rem', fontSize: '0.85rem'}}>🩺 Licencias</button>
+          <div className="subtab-nav no-print">
+            <button
+              className={`subtab-btn ${subTab === 'resumen' ? 'active' : ''}`}
+              onClick={() => setSubTab('resumen')}
+            >
+              <span className="subtab-icon" style={{ background: '#e8edff', color: '#3b5bdb' }}>📊</span>
+              <span className="subtab-label">Resumen</span>
+            </button>
+            <button
+              className={`subtab-btn ${subTab === 'matricula' ? 'active' : ''}`}
+              onClick={() => setSubTab('matricula')}
+            >
+              <span className="subtab-icon" style={{ background: '#e6faf4', color: '#12b886' }}>🏢</span>
+              <span className="subtab-label">Matrícula</span>
+            </button>
+            <button
+              className={`subtab-btn ${subTab === 'alertas' ? 'active' : ''}`}
+              onClick={() => setSubTab('alertas')}
+            >
+              <span className="subtab-icon" style={{ background: '#fff4e6', color: '#fd7e14' }}>⚠️</span>
+              <span className="subtab-label">Alertas</span>
+            </button>
+            <button
+              className={`subtab-btn ${subTab === 'licencias' ? 'active' : ''}`}
+              onClick={() => setSubTab('licencias')}
+            >
+              <span className="subtab-icon" style={{ background: '#fff5f5', color: '#f03e3e' }}>🩺</span>
+              <span className="subtab-label">Licencias</span>
+            </button>
           </div>
 
           {subTab === 'resumen' && (
