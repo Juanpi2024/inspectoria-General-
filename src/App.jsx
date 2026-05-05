@@ -40,6 +40,7 @@ export default function App() {
   const [currentId, setCurrentId] = useState(null);
   const [data, setData] = useState(defaultData);
   const [searchTermAlertas, setSearchTermAlertas] = useState('');
+  const [filterCriticos, setFilterCriticos] = useState(false);
   const [searchTermLicencias, setSearchTermLicencias] = useState('');
   const [showAlertaModal, setShowAlertaModal] = useState(false);
   const [showLicenciaModal, setShowLicenciaModal] = useState(false);
@@ -838,13 +839,21 @@ export default function App() {
                   Estudiantes bajo umbral de asistencia (Meta 14).
                 </p>
               </div>
-              <button className="primary" onClick={() => setShowAlertaModal(true)}>+ Agregar Alerta</button>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button 
+                  className={filterCriticos ? "danger" : "secondary"} 
+                  onClick={() => setFilterCriticos(!filterCriticos)}
+                >
+                  <AlertTriangle size={18} /> {filterCriticos ? 'Mostrando Críticos (<50%)' : 'Filtrar Casos Críticos'}
+                </button>
+                <button className="primary" onClick={() => setShowAlertaModal(true)}>+ Agregar Alerta</button>
+              </div>
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
               <input 
                 type="text" 
-                placeholder="🔍 Buscar alumno por nombre..." 
+                placeholder="🔍 Buscar alumno por nombre o curso (ej: 7Y8)..." 
                 value={searchTermAlertas}
                 onChange={e => setSearchTermAlertas(e.target.value)}
                 style={{ width: '100%', maxWidth: '400px' }}
@@ -978,7 +987,12 @@ export default function App() {
                   </thead>
                   <tbody>
                     {(data.alertas || [])
-                      .filter(a => a.nombre.toLowerCase().includes(searchTermAlertas.toLowerCase()))
+                      .filter(a => {
+                        const searchLower = searchTermAlertas.toLowerCase();
+                        const matchesSearch = a.nombre.toLowerCase().includes(searchLower) || (a.curso && a.curso.toLowerCase().includes(searchLower));
+                        const matchesCritico = filterCriticos ? Number(a.asistenciaAcum) < 50 : true;
+                        return matchesSearch && matchesCritico;
+                      })
                       .map(a => (
                       <tr key={a.id}>
                         <td>{a.nombre}</td>
