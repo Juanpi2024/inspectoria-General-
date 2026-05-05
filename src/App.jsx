@@ -810,8 +810,11 @@ export default function App() {
                     {(data.licencias || [])
                       .filter(l => l.nombre.toLowerCase().includes(searchTermLicencias.toLowerCase()))
                       .map(l => (
-                      <tr key={l.id}>
-                        <td>{l.nombre}</td>
+                      <tr key={l.id} style={{ opacity: l.retirado ? 0.5 : 1, background: l.retirado ? 'rgba(239, 68, 68, 0.05)' : 'transparent' }}>
+                        <td>
+                          {l.nombre}
+                          {l.retirado && <span style={{ marginLeft: '0.5rem', color: 'var(--red)', fontSize: '0.75rem', fontWeight: 'bold' }}>(RETIRADO)</span>}
+                        </td>
                         <td>{l.curso || '-'}</td>
                         <td>{l.diasJustificados} días</td>
                         <td style={{ textAlign: 'right' }}>
@@ -1007,8 +1010,11 @@ export default function App() {
                         return matchesSearch && matchesCritico;
                       })
                       .map(a => (
-                      <tr key={a.id}>
-                        <td>{a.nombre}</td>
+                      <tr key={a.id} style={{ opacity: a.retirado ? 0.5 : 1, background: a.retirado ? 'rgba(239, 68, 68, 0.05)' : 'transparent' }}>
+                        <td>
+                          {a.nombre}
+                          {a.retirado && <span style={{ marginLeft: '0.5rem', color: 'var(--red)', fontSize: '0.75rem', fontWeight: 'bold' }}>(RETIRADO {a.fechaRetiro ? `- ${a.fechaRetiro}` : ''})</span>}
+                        </td>
                         <td>{a.curso || '-'}</td>
                         <td>{a.asistenciaMes}%</td>
                         <td>{a.asistenciaAcum}%</td>
