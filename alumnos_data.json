@@ -1,0 +1,992 @@
+[
+  {
+    "curso": "7Y8",
+    "alumnos": [
+      {
+        "nombre": "FERNANDO AGUERO AYALA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CARLOS AGUILERA TORRES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JONATHAN ARIAS MUNOZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "BENJAMIN CANCINO CASTILLO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ALEJANDRA CATRILEO CARO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "NAYARET HERNANDEZ CONTRERAS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FLORENCIA MAUREIRA CONTRERAS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "SEBASTIAN MUNOZ MARTINEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JUAN PEREZ JIMENEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ESTEBAN SANCHEZ CANCINO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DANIEL VALDES GUTIERREZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "IGNACIO VASQUEZ VILLAGRA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MAITE MUNOZ SEPULVEDA",
+        "retirado": false,
+        "fechaRetiro": null
+      }
+    ]
+  },
+  {
+    "curso": "1Y2 HC",
+    "alumnos": [
+      {
+        "nombre": "ALISON ALARCON TRONCOSO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CAMILA ARIAS VARGAS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "GUEDITH BADILLA ESCALONA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JOSE CAMPOS ECHEVERRIA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "WILDO CHANDIA VASQUEZ",
+        "retirado": true,
+        "fechaRetiro": "30/03/2026"
+      },
+      {
+        "nombre": "ISIDORA CONSTANCIO GONZALEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ALEXANDRA ESPINOZA CANALES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MARTIN ESPINOZA PAVEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DIEGO FRIZ ESPINOZA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MARIA GATICA VILLAGRA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JOAQUIN GONZALES CORDOVA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "BENJAMIN HERNANDEZ BUSTAMANTE",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ERIKA MANZANO VERA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DANIEL MAUREIRA GUTIERREZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ALEXIS MONROY GUAJARDO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ANAHY OLATE MONROY",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "IAN PARRA MANZO",
+        "retirado": true,
+        "fechaRetiro": "13/04/2026"
+      },
+      {
+        "nombre": "MATIAS RETAMAL MUNOZ",
+        "retirado": true,
+        "fechaRetiro": "15/04/2026"
+      },
+      {
+        "nombre": "TIHARE RIQUELME ALMENDRAS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DOMINGO RODRIGUEZ ROJAS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ISABEL SALAS ROJAS",
+        "retirado": true,
+        "fechaRetiro": "08/04/2026"
+      },
+      {
+        "nombre": "ISIDORA SANCHEZ CACERES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MAXIMILIANO SANCHEZ CACERES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "IGNACIO SEPULVEDA FLORES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ALLINSON URETA URETA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "VAIRON VALVERDE TORRES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CARLOS URIBE CARTES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DANIELA ALFARO GODOY",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JOSE LILLO PINO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CARLOS AGURTO FERRADA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FRANCHESCA ESCOBAR ORELLANA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CLARISA CAVIERES LOPEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "PABLO HEREDIA MONROYJUAN",
+        "retirado": false,
+        "fechaRetiro": null
+      }
+    ]
+  },
+  {
+    "curso": "3Y4 HC",
+    "alumnos": [
+      {
+        "nombre": "RICARDO ALBORNOZ PETRAGLIA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "IVAN ALVEAR VIVANCO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "LUIS ANTINAO CERDA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "GENESIS AVILA MUNOZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "YARITZA BADILLA VILLAGRA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "EMILY BUSTAMANTE ORTEGA",
+        "retirado": true,
+        "fechaRetiro": "10/04/2026"
+      },
+      {
+        "nombre": "BRALLAN CAMPOS CERDA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FREDDY CAMPOS LEIVA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MARTIN CAMPOS VALDIVIA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CLAUDIA CAMUS HERNANDEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "GERMAN CARDENAS LILLO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CRISTIAN CARRILLO CONTRERAS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ALEXIS CAYUMAN URRA",
+        "retirado": true,
+        "fechaRetiro": "31/03/2026"
+      },
+      {
+        "nombre": "IVETTE CONTRERAS MARTINEZ",
+        "retirado": true,
+        "fechaRetiro": "20/04/2026"
+      },
+      {
+        "nombre": "BENJAMIN CUETO TAPIA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ANAYS ESPINACE PENAILILLO",
+        "retirado": true,
+        "fechaRetiro": "15/04/2026"
+      },
+      {
+        "nombre": "MATIAS FERNANDEZ MENDEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "BENJAMIN FUENTES MARIN",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "KRISSNA FUENTES MARIN",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FRANCISCO FUENTES NORAMBUENA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ANDRIU GALVEZ POBLETE",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CRISTOPHER GALVEZ POBLETE",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JOSE GARCIA CALDERON",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "GONZALO GUTIERREZ GOMEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "SIAMARA HERNANDEZ TRAMOLAO",
+        "retirado": true,
+        "fechaRetiro": "21/04/2026"
+      },
+      {
+        "nombre": "OSCAR LASTRA FUENTES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MARCO MARCHANT VILLAFANA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CARLOS MONROY SOTO",
+        "retirado": true,
+        "fechaRetiro": "24/04/2026"
+      },
+      {
+        "nombre": "MARTIN MUNOZ LASTRA",
+        "retirado": true,
+        "fechaRetiro": "23/04/2025"
+      },
+      {
+        "nombre": "ANGEL MUNOZ SALAZAR",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ROBERT MUNOZ YANEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "BASTIAN NAVARRETE CONCHA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FABIAN NAWRATH SANTIBANEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MAGDALENA PARADA JIMENEZ",
+        "retirado": true,
+        "fechaRetiro": "15/04/2026"
+      },
+      {
+        "nombre": "CONSTANZA PRADO VALLEJOS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CATALINA REYES CASTRO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JAIME RODRIGUEZ ROJAS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JORGE ROMERO ROA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "EDUARDO SALDIAS PIZARRO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FRANCHESCA TRONCOSO ESCOBAR",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "TATIANA TRUDEO FLORES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FRANCISCO VILLAGRA CONCHA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DANIEL VILLAGRA HERNANDEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "TOMAS ZUNIGA MORALES",
+        "retirado": false,
+        "fechaRetiro": null
+      }
+    ]
+  },
+  {
+    "curso": "1Y2 ELE",
+    "alumnos": [
+      {
+        "nombre": "CARMEN AZOCAR PARRA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JUAN BASCUR CASANOVA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "SANTIAGO BUSTOS SEPULVEDA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ALONZO CHANDIA GATICA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "KEVIN CISTERNA PEREZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MACARENA CONTRERAS ACUNA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "EDUARDO CONTRERAS MORA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MARCELO DELGADILLO DURAN",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JAVIER GAJARDO ROCHA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "VICENTE GUTIERREZ VALVERDE",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DANIEL HERNANDEZ ROJAS",
+        "retirado": true,
+        "fechaRetiro": "13/04/2026"
+      },
+      {
+        "nombre": "ALEJANDRO LILLO ALFARO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "YOCHUA LUENGO GOMEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FRANCISCO MEDEL ALFARO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JOSELIN MORALES MUNOZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CONSTANZA MUNOZ BETANCOURT",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "LUIS NINO SEPULVEDA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CRISTOBAL OJEDA BALDU",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MARIANA PACHECO GALLEGUILLOS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ELIAZAR PRADO PUGA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ALEX ROA ORTEGA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ALEXANDER ROZAS MERINO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "KARLA SALDANA CARRASCO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JUAN SALDIAS RIQUELME",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ANTONIA SOTO MATUS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DAVID TAPIA SEPULVEDA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "LUIS VASQUEZ VASQUEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JOSHUA VERGARA REYES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MAXIMILIANO YANEZ VASQUEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "WILDO CHANDIA VASQUEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ALEXANDERMAXIMILIANO MORENO CERDA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "TABITA MORALES LEIVA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "NICOLAS CIFUENTES REYES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DYLAN PEREZ MARIN",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JAVIER CANALES AGURTO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JASMINE BUSTAMANTE URRUTIA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DUSTTIAN SANCHEZ CATRILEO",
+        "retirado": false,
+        "fechaRetiro": null
+      }
+    ]
+  },
+  {
+    "curso": "3 ELEC",
+    "alumnos": [
+      {
+        "nombre": "DANIEL ARIAS VARGAS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "VICENTE FUENTES INOSTROZA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FELIX GARCIA ABURTO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "LUIS MAUREIRA ESPINOZA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FELIPE MEZA SALVO",
+        "retirado": true,
+        "fechaRetiro": "16/04/2026"
+      },
+      {
+        "nombre": "FERNANDO ORREGO PARADA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FELIPE SEPULVEDA CERDA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JESICA VALDES MORALES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ALEXIS CAYUMAN URRA",
+        "retirado": true,
+        "fechaRetiro": "22/04/2026"
+      },
+      {
+        "nombre": "DIEGO OYARCE ESPINOZA",
+        "retirado": false,
+        "fechaRetiro": null
+      }
+    ]
+  },
+  {
+    "curso": "4 ELEC",
+    "alumnos": [
+      {
+        "nombre": "ABRAHAM ARIAS FUENTES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "WILLIAMS CONTRERAS FLORES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CRISTOFER FUENTES QUEZADA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "JESUS MUNOZ CANCINO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "KIEFER QUIROGA ROJO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CRISTIAN VELOZO SALAZAR",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "SEBASTIAN PARRA FLORES",
+        "retirado": false,
+        "fechaRetiro": null
+      }
+    ]
+  },
+  {
+    "curso": "1Y2 PAR",
+    "alumnos": [
+      {
+        "nombre": "CLARISA CAVIERES LOPEZ",
+        "retirado": true,
+        "fechaRetiro": "08/04/2026"
+      },
+      {
+        "nombre": "AYLEEN GUARACHE FARFAN",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MILLARAY MORALES PEREZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CATALINA MUNOZ MORA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "SOLEDAD NOVOA CONTRERAS",
+        "retirado": true,
+        "fechaRetiro": "22/04/2026"
+      },
+      {
+        "nombre": "PIA OSSES URRA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DANIELA PENA TOLEDO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "AMANDA SEGURA LAGOS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MICHELL SUAZO SANCHEZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "NATALIA VALDES JARA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ALISON ALARCON TRONCOSO",
+        "retirado": true,
+        "fechaRetiro": "31/03/2026"
+      }
+    ]
+  },
+  {
+    "curso": "3 PAR",
+    "alumnos": [
+      {
+        "nombre": "ROSARIO AGURTO CONTRERAS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "LUZ ARAVENA CISTERNA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ANTONIA CASTILLO URETA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ELIDA CAVIERES ISLA",
+        "retirado": true,
+        "fechaRetiro": "17/04/2026"
+      },
+      {
+        "nombre": "MARTINA CISTERNA RIVEROS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ADRIANA CISTERNA URRUTIA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "GLADYS ESPINOZA SEGOVIA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "KAREN FALCON ALARCON",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ELBIA FUENTES FUENTES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MIA GUTIERREZ VIELMA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "VANNESSA MAUREIRA VIVANCO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MEY MELLADO MIRANDA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "AILEN MENA CUEVAS",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "YARIXA MONROY URRA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MONSERRAT ORTEGA LASTRA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MARIA PARRA LARA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "LIZETTHY QUIROZ ACUNA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "BELGICA RIVERA MUNOZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "MARYSOL RODRIGUEZ GONZALEZ",
+        "retirado": true,
+        "fechaRetiro": "30/03/2026"
+      },
+      {
+        "nombre": "CONSTANZA SEGURA MORALES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "CATALINA SEPULVEDA PAVEZ",
+        "retirado": true,
+        "fechaRetiro": "31/03/2026"
+      },
+      {
+        "nombre": "ALEJANDRA SUAZO ROSALES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FRANCISCA TORRES VILLABLANCA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "NICOL VALLEJOS NAVARRETE",
+        "retirado": true,
+        "fechaRetiro": "28/04/2026"
+      },
+      {
+        "nombre": "ANTONIA VEJAR SARAVIA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ANAYS ESPINACE PENAILILLO",
+        "retirado": false,
+        "fechaRetiro": null
+      }
+    ]
+  },
+  {
+    "curso": "4 PAR",
+    "alumnos": [
+      {
+        "nombre": "KATERIN AGUILERA TORRES",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "FRANCISCA BADILLA ORTEGA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "DIANA CERDA MUNOZ",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "BERNARDITA FUENZALIDA PEREIRA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "TAMARA ROMERO URRUTIA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "ANTONELLA SEPULVEDA PARADA",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "TATIANA SOTO NAVARRO",
+        "retirado": false,
+        "fechaRetiro": null
+      },
+      {
+        "nombre": "LISSETTE VASQUEZ SALDIAS",
+        "retirado": false,
+        "fechaRetiro": null
+      }
+    ]
+  }
+]
