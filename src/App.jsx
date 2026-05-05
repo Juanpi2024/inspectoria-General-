@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Save, FileText, TrendingUp, TrendingDown, Minus, 
-  UserPlus, UserMinus, AlertTriangle, CheckCircle, Info, Printer, Loader2, Plus, Calendar, Cloud, CloudOff, RefreshCw
+  UserPlus, UserMinus, AlertTriangle, CheckCircle, Info, Printer, Loader2, Plus, Calendar, Cloud, CloudOff, RefreshCw, User
 } from 'lucide-react';
 import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
@@ -43,6 +43,31 @@ export default function App() {
   const [searchTermLicencias, setSearchTermLicencias] = useState('');
   const [showAlertaModal, setShowAlertaModal] = useState(false);
   const [showLicenciaModal, setShowLicenciaModal] = useState(false);
+  const [selectedStudentForReport, setSelectedStudentForReport] = useState('');
+
+  const studentHistory = useMemo(() => {
+    if (!selectedStudentForReport) return null;
+    const history = { alertas: [], licencias: [] };
+    const searchName = selectedStudentForReport.toLowerCase();
+
+    // Histórico
+    reportesList.forEach(r => {
+      if (r.id === currentId) return; // Evitar duplicar el mes actual
+      const alertas = (r.alertas || []).filter(a => a.nombre.toLowerCase().includes(searchName)).map(a => ({...a, periodoStr: r.periodo}));
+      const licencias = (r.licencias || []).filter(l => l.nombre.toLowerCase().includes(searchName)).map(l => ({...l, periodoStr: r.periodo}));
+      history.alertas.push(...alertas);
+      history.licencias.push(...licencias);
+    });
+
+    // Mes actual
+    const currentAlertas = (data.alertas || []).filter(a => a.nombre.toLowerCase().includes(searchName)).map(a => ({...a, periodoStr: data.periodo + ' (Actual)'}));
+    const currentLicencias = (data.licencias || []).filter(l => l.nombre.toLowerCase().includes(searchName)).map(l => ({...l, periodoStr: data.periodo + ' (Actual)'}));
+    
+    history.alertas.push(...currentAlertas);
+    history.licencias.push(...currentLicencias);
+
+    return history;
+  }, [selectedStudentForReport, reportesList, data, currentId]);
 
   // Cargar desde Firebase en tiempo real con timeout de seguridad
   useEffect(() => {
@@ -484,6 +509,13 @@ export default function App() {
           disabled={!currentId}
         >
           <FileText size={18} /> Reporte Mensual
+        </button>
+        <button 
+          className={`tab ${activeTab === 'expediente' ? 'active' : ''}`}
+          onClick={() => setActiveTab('expediente')}
+          disabled={!currentId}
+        >
+          <User size={18} /> Expediente Alumno
         </button>
       </div>
 
@@ -1192,6 +1224,111 @@ export default function App() {
             </p>
           </div>
 
+        </div>
+      )}
+
+      {activeTab === 'expediente' && (
+        <div className="animate-fade-in" id="printable-report">
+          <div className="no-print card" style={{ marginBottom: '2rem' }}>
+            <h2>Buscar Expediente de Estudiante</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>
+              Busca un alumno por nombre para generar su reporte histórico de alertas y licencias.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <input 
+                type="text" 
+                list="nombres-list"
+                placeholder="Nombre del estudiante..." 
+                value={selectedStudentForReport}
+                onChange={e => setSelectedStudentForReport(e.target.value)}
+                style={{ flex: 1, minWidth: '250px' }}
+              />
+              {selectedStudentForReport && (
+                <button className="primary" onClick={printReport}>
+                  <Printer size={18} /> Imprimir Expediente
+                </button>
+              )}
+            </div>
+          </div>
+
+          {studentHistory && selectedStudentForReport && (studentHistory.alertas.length > 0 || studentHistory.licencias.length > 0) && (
+            <div className="card" style={{ background: '#fff', color: '#000' }}>
+              <div style={{ textAlign: 'center', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem' }}>
+                <h1 style={{ color: '#000', marginBottom: '0.5rem' }}>EXPEDIENTE DEL ESTUDIANTE</h1>
+                <h2 style={{ color: '#333', fontSize: '1.5rem', fontWeight: 600 }}>{selectedStudentForReport.toUpperCase()}</h2>
+                <p style={{ color: '#666', marginTop: '0.5rem' }}>Inspectoría General - CEIA Juanita Zúñiga Fuentes</p>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#000' }}>
+                  1. Alertas Tempranas y Medidas Tomadas
+                </h3>
+                {studentHistory.alertas.length > 0 ? (
+                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#000' }}>
+                    <thead>
+                      <tr style={{ background: '#f5f5f5' }}>
+                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', color: '#000' }}>Periodo</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', color: '#000' }}>Curso</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', color: '#000' }}>% Asistencia</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', color: '#000' }}>Acción / Medida Tomada</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {studentHistory.alertas.map((a, i) => (
+                        <tr key={i}>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{a.periodoStr}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{a.curso}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>{a.asistenciaAcum}%</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 600 }}>{a.accion}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p style={{ color: '#666', fontStyle: 'italic' }}>No registra alertas de repitencia.</p>
+                )}
+              </div>
+
+              <div>
+                <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#000' }}>
+                  2. Historial de Licencias Médicas (Justificaciones)
+                </h3>
+                {studentHistory.licencias.length > 0 ? (
+                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#000' }}>
+                    <thead>
+                      <tr style={{ background: '#f5f5f5' }}>
+                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', color: '#000' }}>Periodo</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', color: '#000' }}>Curso</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', color: '#000' }}>Días Justificados</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {studentHistory.licencias.map((l, i) => (
+                        <tr key={i}>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{l.periodoStr}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{l.curso}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', fontWeight: 600 }}>{l.diasJustificados} días</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p style={{ color: '#666', fontStyle: 'italic' }}>No registra licencias médicas justificadas.</p>
+                )}
+              </div>
+
+              <div style={{ marginTop: '4rem', display: 'flex', justifyContent: 'space-around', color: '#000' }}>
+                <div style={{ textAlign: 'center', width: '200px' }}>
+                  <div style={{ borderBottom: '1px solid #000', height: '40px' }}></div>
+                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>Firma Inspector(a) General</p>
+                </div>
+                <div style={{ textAlign: 'center', width: '200px' }}>
+                  <div style={{ borderBottom: '1px solid #000', height: '40px' }}></div>
+                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>Firma Director(a) / Timbre</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
