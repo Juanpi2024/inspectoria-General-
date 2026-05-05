@@ -69,6 +69,45 @@ export default function App() {
     return history;
   }, [selectedStudentForReport, reportesList, data, currentId]);
 
+  const periodosAgrupados = useMemo(() => {
+    if (!studentHistory) return [];
+    const map = new Map();
+
+    studentHistory.alertas.forEach(a => {
+      if (!map.has(a.periodoStr)) map.set(a.periodoStr, { alertas: [], licencias: [] });
+      map.get(a.periodoStr).alertas.push(a);
+    });
+
+    studentHistory.licencias.forEach(l => {
+      if (!map.has(l.periodoStr)) map.set(l.periodoStr, { alertas: [], licencias: [] });
+      map.get(l.periodoStr).licencias.push(l);
+    });
+
+    // Helper para extraer el mes
+    const getMonthIndex = (periodo) => {
+      const p = periodo.toLowerCase();
+      const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      for (let i = 0; i < meses.length; i++) {
+        if (p.includes(meses[i])) return i;
+      }
+      return -1;
+    };
+
+    // Helper para extraer el año
+    const getYear = (periodo) => {
+      const match = periodo.match(/\d{4}/);
+      return match ? parseInt(match[0]) : 0;
+    };
+
+    return Array.from(map.entries()).map(([periodo, d]) => ({ periodo, ...d }))
+      .sort((a, b) => {
+        const yearA = getYear(a.periodo);
+        const yearB = getYear(b.periodo);
+        if (yearA !== yearB) return yearA - yearB;
+        return getMonthIndex(a.periodo) - getMonthIndex(b.periodo);
+      });
+  }, [studentHistory]);
+
   // Cargar desde Firebase en tiempo real con timeout de seguridad
   useEffect(() => {
     let unsubscribe = () => {};
@@ -1251,80 +1290,76 @@ export default function App() {
             </div>
           </div>
 
-          {studentHistory && selectedStudentForReport && (studentHistory.alertas.length > 0 || studentHistory.licencias.length > 0) && (
+          {periodosAgrupados.length > 0 && selectedStudentForReport && (
             <div className="card" style={{ background: '#fff', color: '#000' }}>
-              <div style={{ textAlign: 'center', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem' }}>
-                <h1 style={{ color: '#000', marginBottom: '0.5rem' }}>EXPEDIENTE DEL ESTUDIANTE</h1>
-                <h2 style={{ color: '#333', fontSize: '1.5rem', fontWeight: 600 }}>{selectedStudentForReport.toUpperCase()}</h2>
-                <p style={{ color: '#666', marginTop: '0.5rem' }}>Inspectoría General - CEIA Juanita Zúñiga Fuentes</p>
+              <div style={{ textAlign: 'center', marginBottom: '3rem', borderBottom: '2px solid #eee', paddingBottom: '1.5rem' }}>
+                <h1 style={{ color: '#000', marginBottom: '0.5rem', fontSize: '2rem' }}>EXPEDIENTE DE ACTUACIONES</h1>
+                <h2 style={{ color: '#1e293b', fontSize: '1.5rem', fontWeight: 600 }}>ALUMNO(A): {selectedStudentForReport.toUpperCase()}</h2>
+                <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Inspectoría General - CEIA Juanita Zúñiga Fuentes</p>
               </div>
 
-              <div style={{ marginBottom: '2rem' }}>
-                <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#000' }}>
-                  1. Alertas Tempranas y Medidas Tomadas
-                </h3>
-                {studentHistory.alertas.length > 0 ? (
-                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#000' }}>
-                    <thead>
-                      <tr style={{ background: '#f5f5f5' }}>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', color: '#000' }}>Periodo</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', color: '#000' }}>Curso</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', color: '#000' }}>% Asistencia</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', color: '#000' }}>Acción / Medida Tomada</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {studentHistory.alertas.map((a, i) => (
-                        <tr key={i}>
-                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{a.periodoStr}</td>
-                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{a.curso}</td>
-                          <td style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>{a.asistenciaAcum}%</td>
-                          <td style={{ border: '1px solid #ddd', padding: '8px', fontWeight: 600 }}>{a.accion}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p style={{ color: '#666', fontStyle: 'italic' }}>No registra alertas de repitencia.</p>
-                )}
-              </div>
+              {periodosAgrupados.map((p, index) => (
+                <div key={index} style={{ marginBottom: '2.5rem', borderLeft: '4px solid #3b82f6', paddingLeft: '1.5rem' }}>
+                  <h3 style={{ color: '#0f172a', fontSize: '1.25rem', marginBottom: '1rem', display: 'inline-block', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.25rem' }}>
+                    Mes de Registro: {p.periodo.toUpperCase()}
+                  </h3>
 
-              <div>
-                <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '1rem', color: '#000' }}>
-                  2. Historial de Licencias Médicas (Justificaciones)
-                </h3>
-                {studentHistory.licencias.length > 0 ? (
-                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#000' }}>
-                    <thead>
-                      <tr style={{ background: '#f5f5f5' }}>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', color: '#000' }}>Periodo</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', color: '#000' }}>Curso</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', color: '#000' }}>Días Justificados</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {studentHistory.licencias.map((l, i) => (
-                        <tr key={i}>
-                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{l.periodoStr}</td>
-                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{l.curso}</td>
-                          <td style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', fontWeight: 600 }}>{l.diasJustificados} días</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p style={{ color: '#666', fontStyle: 'italic' }}>No registra licencias médicas justificadas.</p>
-                )}
-              </div>
+                  {p.alertas.length > 0 && (
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <h4 style={{ color: '#334155', marginBottom: '0.5rem', fontSize: '1rem' }}>⚠️ Acciones y Alertas de Repitencia</h4>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', color: '#0f172a', fontSize: '0.9rem' }}>
+                        <thead>
+                          <tr style={{ background: '#f8fafc' }}>
+                            <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '20%' }}>Curso</th>
+                            <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'center', width: '15%' }}>% Asistencia</th>
+                            <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left' }}>Acción / Medida Tomada</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {p.alertas.map((a, i) => (
+                            <tr key={i}>
+                              <td style={{ border: '1px solid #cbd5e1', padding: '10px' }}>{a.curso}</td>
+                              <td style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'center' }}>{a.asistenciaAcum}%</td>
+                              <td style={{ border: '1px solid #cbd5e1', padding: '10px', fontWeight: 600 }}>{a.accion}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
 
-              <div style={{ marginTop: '4rem', display: 'flex', justifyContent: 'space-around', color: '#000' }}>
+                  {p.licencias.length > 0 && (
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <h4 style={{ color: '#334155', marginBottom: '0.5rem', fontSize: '1rem' }}>🩺 Justificaciones (Licencias Médicas)</h4>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', color: '#0f172a', fontSize: '0.9rem' }}>
+                        <thead>
+                          <tr style={{ background: '#f8fafc' }}>
+                            <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '20%' }}>Curso</th>
+                            <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left' }}>Días Justificados</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {p.licencias.map((l, i) => (
+                            <tr key={i}>
+                              <td style={{ border: '1px solid #cbd5e1', padding: '10px' }}>{l.curso}</td>
+                              <td style={{ border: '1px solid #cbd5e1', padding: '10px', fontWeight: 600 }}>{l.diasJustificados} días</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              <div style={{ marginTop: '4rem', display: 'flex', justifyContent: 'space-around', color: '#0f172a' }}>
                 <div style={{ textAlign: 'center', width: '200px' }}>
-                  <div style={{ borderBottom: '1px solid #000', height: '40px' }}></div>
-                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>Firma Inspector(a) General</p>
+                  <div style={{ borderBottom: '1px solid #0f172a', height: '40px' }}></div>
+                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Firma Inspector(a) General</p>
                 </div>
                 <div style={{ textAlign: 'center', width: '200px' }}>
-                  <div style={{ borderBottom: '1px solid #000', height: '40px' }}></div>
-                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>Firma Director(a) / Timbre</p>
+                  <div style={{ borderBottom: '1px solid #0f172a', height: '40px' }}></div>
+                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Firma Director(a) / Timbre</p>
                 </div>
               </div>
             </div>
