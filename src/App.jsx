@@ -473,71 +473,55 @@ export default function App() {
         {uniqueCursos.map(c => <option key={c} value={c} />)}
       </datalist>
       {offlineMode && (
-        <div className="no-print" style={{ 
-          background: 'rgba(245, 158, 11, 0.1)', 
-          border: '1px solid var(--warning)', 
-          padding: '0.75rem', 
-          borderRadius: '8px', 
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          fontSize: '0.9rem'
-        }}>
-          <Info size={16} className="status-yellow" />
-          <span><strong>Modo Offline:</strong> Los datos se guardarán solo en esta sesión. Conecte Firebase para sincronización permanente.</span>
+        <div className="offline-banner no-print">
+          <Info size={16} />
+          <span><strong>Modo Offline:</strong> Los datos se guardan solo en esta sesión. Conecte Firebase para sincronización permanente.</span>
         </div>
       )}
-      <header className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 style={{ textAlign: 'left' }}>Sistema Inspectoría CEIA</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Gestión de Eficiencia Interna y Matrícula</p>
-        </div>
-        
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          {currentId && !offlineMode && (
-            <div className="no-print" style={{ 
-              fontSize: '0.85rem', 
-              color: saveStatus === 'saving' ? 'var(--text-muted)' : (saveStatus === 'error' ? 'var(--red)' : 'var(--green)'), 
-              display: 'flex', alignItems: 'center', gap: '0.25rem',
-              opacity: saveStatus === 'saved' ? 0.7 : 1
-            }}>
-              {saveStatus === 'saving' ? <><RefreshCw size={14} className="animate-spin" /> Guardando...</> : 
-               saveStatus === 'error' ? <><AlertTriangle size={14} /> Error al guardar</> : 
-               <><CheckCircle size={14} /> Guardado</>}
+      <header className="no-print">
+        <div className="navbar-inner">
+          <div className="navbar-brand">
+            <div className="navbar-logo">CI</div>
+            <div>
+              <div className="navbar-title">Inspectoría General CEIA</div>
+              <div className="navbar-subtitle">Gestión de Eficiencia Interna y Matrícula</div>
             </div>
-          )}
-          <div className="no-print" style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.5rem', 
-            padding: '0.4rem 0.8rem', 
-            background: offlineMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-            borderRadius: '20px',
-            fontSize: '0.85rem',
-            border: `1px solid ${offlineMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
-            marginRight: '0.5rem'
-          }}>
-            {offlineMode ? (
-              <><CloudOff size={14} className="status-red" /> <span className="status-red">Modo Local</span></>
-            ) : (
-              <><Cloud size={14} className="status-green" /> <span className="status-green">Sincronizado</span></>
-            )}
           </div>
-          <select 
-            value={currentId || ''} 
-            onChange={(e) => handleSelectReporte(e.target.value)}
-            style={{ width: '200px', padding: '0.5rem', background: 'var(--bg-card)' }}
-            disabled={!currentId}
-          >
-            {reportesList.length === 0 && <option value="">Sin reportes</option>}
-            {reportesList.map(r => (
-              <option key={r.id} value={r.id}>{r.periodo}</option>
-            ))}
-          </select>
-          <button className="primary" onClick={handleCreateNew}>
-            <Plus size={18} /> Nuevo Mes
-          </button>
+
+          <div className="navbar-actions">
+            {currentId && !offlineMode && (
+              <div className="no-print" style={{
+                fontSize: '0.82rem',
+                color: saveStatus === 'saving' ? 'var(--text-muted)' : (saveStatus === 'error' ? 'var(--danger)' : 'var(--success)'),
+                display: 'flex', alignItems: 'center', gap: '0.3rem',
+                opacity: saveStatus === 'saved' ? 0.8 : 1,
+                fontWeight: 500
+              }}>
+                {saveStatus === 'saving' ? <><RefreshCw size={13} className="animate-spin" /> Guardando...</> :
+                 saveStatus === 'error' ? <><AlertTriangle size={13} /> Error</> :
+                 <><CheckCircle size={13} /> Guardado</>}
+              </div>
+            )}
+            <span className={`status-pill no-print ${offlineMode ? 'offline' : 'online'}`}>
+              {offlineMode
+                ? <><CloudOff size={13} /> Modo Local</>
+                : <><Cloud size={13} /> Sincronizado</>}
+            </span>
+            <select
+              value={currentId || ''}
+              onChange={(e) => handleSelectReporte(e.target.value)}
+              style={{ width: '170px', padding: '0.5rem 0.75rem', fontSize: '0.88rem' }}
+              disabled={!currentId}
+            >
+              {reportesList.length === 0 && <option value="">Sin reportes</option>}
+              {reportesList.map(r => (
+                <option key={r.id} value={r.id}>{r.periodo}</option>
+              ))}
+            </select>
+            <button className="primary" onClick={handleCreateNew}>
+              <Plus size={17} /> Nuevo Mes
+            </button>
+          </div>
         </div>
       </header>
 
@@ -580,11 +564,11 @@ export default function App() {
 
       {currentId && activeTab === 'ingreso' && (
         <div className="animate-fade-in no-print">
-          <div className="tabs sub-tabs" style={{ marginBottom: '1.5rem', background: 'rgba(0,0,0,0.2)', padding: '0.4rem', borderRadius: '12px', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <button className={`tab ${subTab === 'resumen' ? 'active' : ''}`} onClick={() => setSubTab('resumen')} style={{flex: 1, padding: '0.5rem'}}>📊 Resumen</button>
-            <button className={`tab ${subTab === 'matricula' ? 'active' : ''}`} onClick={() => setSubTab('matricula')} style={{flex: 1, padding: '0.5rem'}}>🏢 Matrícula</button>
-            <button className={`tab ${subTab === 'alertas' ? 'active' : ''}`} onClick={() => setSubTab('alertas')} style={{flex: 1, padding: '0.5rem'}}>⚠️ Alertas</button>
-            <button className={`tab ${subTab === 'licencias' ? 'active' : ''}`} onClick={() => setSubTab('licencias')} style={{flex: 1, padding: '0.5rem'}}>🩺 Licencias</button>
+          <div className="tabs sub-tabs no-print" style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.35rem', padding: '0.4rem', flexWrap: 'wrap' }}>
+            <button className={`tab ${subTab === 'resumen' ? 'active' : ''}`} onClick={() => setSubTab('resumen')} style={{flex: 1, padding: '0.55rem', fontSize: '0.85rem'}}>📊 Resumen</button>
+            <button className={`tab ${subTab === 'matricula' ? 'active' : ''}`} onClick={() => setSubTab('matricula')} style={{flex: 1, padding: '0.55rem', fontSize: '0.85rem'}}>🏢 Matrícula</button>
+            <button className={`tab ${subTab === 'alertas' ? 'active' : ''}`} onClick={() => setSubTab('alertas')} style={{flex: 1, padding: '0.55rem', fontSize: '0.85rem'}}>⚠️ Alertas</button>
+            <button className={`tab ${subTab === 'licencias' ? 'active' : ''}`} onClick={() => setSubTab('licencias')} style={{flex: 1, padding: '0.55rem', fontSize: '0.85rem'}}>🩺 Licencias</button>
           </div>
 
           {subTab === 'resumen' && (
@@ -765,8 +749,8 @@ export default function App() {
             </div>
 
             {showLicenciaModal && (
-              <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '500px', margin: '1rem', background: 'var(--bg-dark)', border: '1px solid var(--primary)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+              <div className="modal-overlay">
+                <div className="modal-card animate-fade-in" style={{ maxWidth: '500px' }}>
                   <h3 style={{ marginBottom: '1.5rem' }}>Nueva Licencia Médica</h3>
                   <form onSubmit={(e) => { handleAddLicencia(e); setShowLicenciaModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
@@ -877,8 +861,8 @@ export default function App() {
             </div>
 
             {(showAlertaModal || editandoAlertaId) && (
-              <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: modalPosition !== null ? 'flex-start' : 'center', paddingTop: modalPosition !== null ? `${Math.max(20, modalPosition)}px` : '0' }}>
-                <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '600px', margin: '1rem', maxHeight: '90vh', overflowY: 'auto', background: 'var(--bg-dark)', border: '1px solid var(--primary)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+              <div className="modal-overlay" style={{ alignItems: modalPosition !== null ? 'flex-start' : 'center', paddingTop: modalPosition !== null ? `${Math.max(20, modalPosition)}px` : '0' }}>
+                <div className="modal-card animate-fade-in" style={{ maxWidth: '600px' }}>
                   <h3 style={{ marginBottom: '1.5rem' }}>{editandoAlertaId ? 'Editar Alerta' : 'Nueva Alerta'}</h3>
                   <form onSubmit={(e) => { handleAddAlerta(e); setShowAlertaModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
