@@ -48,6 +48,10 @@ export default function App() {
   const [selectedStudentForReport, setSelectedStudentForReport] = useState('');
   const [inputManualLicencia, setInputManualLicencia] = useState(false);
   const [inputManualAlerta, setInputManualAlerta] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importPreview, setImportPreview] = useState(null); // { rows: [], unmatched: [] }
+  const [importStep, setImportStep] = useState('paste'); // 'paste' | 'preview'
 
   const studentHistory = useMemo(() => {
     if (!selectedStudentForReport) return null;
@@ -452,6 +456,116 @@ export default function App() {
       ...prev,
       alertas: (prev.alertas || []).filter(a => a.id !== id)
     }));
+  };
+
+  // =====================================================
+  // IMPORTACIÓN MASIVA DE ASISTENCIAS
+  // =====================================================
+
+  // Limpia tildes y normaliza a mayúsculas para comparar
+  const normalizeStr = (s) =>
+    String(s || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase().replace(/\s+/g, ' ').trim();
+
+  // Coincidencia flexible: chequea si todos los tokens del candidato
+  // están contenidos en el nombre de la nómina (permite orden inverso)
+  const fuzzyMatch = (nominaName, candidateName) => {
+    const a = normalizeStr(nominaName);
+    const b = normalizeStr(candidateName);
+    if (a === b) return true;
+    const tokensB = b.split(' ');
+    // Todos los tokens del candidato deben aparecer en el nombre de nómina
+    return tokensB.every(t => t.length > 2 && a.includes(t));
+  };
+
+  const handleParseImport = () => {
+    const lines = importText.trim().split('\n').filter(l => l.trim());
+    if (lines.length === 0) return;
+
+    // Detectar separador: TAB o punto y coma
+    const sep = lines[0].includes('\t') ? '\t' : ';';
+
+    // Intentar detectar si la primera línea es encabezado
+    const firstCells = lines[0].split(sep);
+    const hasHeader = isNaN(firstCells[firstCells.length - 1].trim().replace('%',''));
+    const dataLines = hasHeader ? lines.slice(1) : lines;
+
+    const currentAlertas = data.alertas || [];
+    const matched = [];
+    const unmatched = [];
+
+    dataLines.forEach(line => {
+      const cells = line.split(sep).map(c => c.trim().replace('%', ''));
+      if (cells.length < 3) return; // necesita al menos curso, nombre, porcentaje
+
+      // Intentar detectar formato: puede ser [nombre, curso, pct] o [curso, nombre, pct]
+      // Si la primera celda coincide con un curso oficial -> [curso, nombre, pct]
+      // Si no, asumimos [nombre, curso, pct]
+      let curso, nombre, pctStr;
+      const cursoOficialNorm = CURSOS_OFICIALES.map(c => normalizeStr(c));
+      if (cursoOficialNorm.includes(normalizeStr(cells[0]))) {
+        [curso, nombre, pctStr] = [cells[0], cells[1], cells[2]];
+      } else if (cursoOficialNorm.includes(normalizeStr(cells[1]))) {
+        [nombre, curso, pctStr] = [cells[0], cells[1], cells[2]];
+      } else {
+        // último intento: usar la última celda como porcentaje
+        nombre = cells.slice(0, -1).join(' ');
+        pctStr = cells[cells.length - 1];
+        curso = '';
+      }
+
+      const pct = parseFloat(pctStr);
+      if (isNaN(pct) || pct < 0 || pct > 100) return;
+
+      // Buscar alumno existente por fuzzy match de nombre
+      const existing = currentAlertas.find(a => fuzzyMatch(a.nombre, nombre));
+
+      if (existing) {
+        // Calcular nuevo acumulado (promedio con anterior si existe)
+        const anterior = parseFloat(existing.asistenciaAcumAnterior || existing.asistenciaAcum || pct);
+        const nuevoAcum = Math.round((anterior + pct) / 2);
+        matched.push({
+          id: existing.id,
+          nombreExistente: existing.nombre,
+          nombreCSV: nombre,
+          curso: curso || existing.curso,
+          asistenciaMes: pct,
+          asistenciaAcum: nuevoAcum,
+          asistenciaAcumAnterior: anterior,
+        });
+      } else {
+        unmatched.push({ nombre, curso, pct });
+      }
+    });
+
+    setImportPreview({ matched, unmatched });
+    setImportStep('preview');
+  };
+
+  const handleConfirmImport = () => {
+    if (!importPreview) return;
+    setData(prev => ({
+      ...prev,
+      alertas: (prev.alertas || []).map(a => {
+        const row = importPreview.matched.find(r => r.id === a.id);
+        if (!row) return a;
+        return {
+          ...a,
+          asistenciaMes: row.asistenciaMes,
+          asistenciaAcum: row.asistenciaAcum,
+          asistenciaAcumAnterior: row.asistenciaAcumAnterior,
+        };
+      }),
+      // Actualizar asistencia promedio automáticamente
+      asistenciaPromedio: importPreview.matched.length > 0
+        ? Math.round(importPreview.matched.reduce((acc, r) => acc + r.asistenciaMes, 0) / importPreview.matched.length)
+        : prev.asistenciaPromedio,
+    }));
+    setShowImportModal(false);
+    setImportText('');
+    setImportPreview(null);
+    setImportStep('paste');
   };
 
   const clearData = () => {
@@ -980,6 +1094,9 @@ export default function App() {
                 >
                   <AlertTriangle size={18} /> {filterCriticos ? 'Mostrando Críticos (<50%)' : 'Filtrar Casos Críticos'}
                 </button>
+                <button className="secondary" onClick={() => { setShowImportModal(true); setImportStep('paste'); setImportText(''); setImportPreview(null); }}>
+                  📅 Importar Asistencias
+                </button>
                 <button className="primary" onClick={(e) => {
                   if (e && e.clientY) {
                     setModalPosition(Math.min(e.clientY - 50, window.innerHeight - 500));
@@ -990,6 +1107,136 @@ export default function App() {
                 }}>+ Agregar Alerta</button>
               </div>
             </div>
+
+            {/* ===== MODAL IMPORTAR ASISTENCIAS ===== */}
+            {showImportModal && (
+              <div className="modal-overlay" style={{ zIndex: 1100 }}>
+                <div className="modal-card animate-fade-in" style={{ maxWidth: '700px', width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <div>
+                      <h3 style={{ marginBottom: '0.25rem' }}>📅 Importar Asistencias Masivas</h3>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
+                        Paso {importStep === 'paste' ? '1 de 2: Pegar datos' : '2 de 2: Confirmar cambios'}
+                      </p>
+                    </div>
+                    <button className="secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
+                      onClick={() => { setShowImportModal(false); setImportText(''); setImportPreview(null); setImportStep('paste'); }}>
+                      ✕ Cerrar
+                    </button>
+                  </div>
+
+                  {importStep === 'paste' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      <div style={{ background: 'var(--primary-ultra-light)', border: '1px solid var(--border-card)', borderRadius: '12px', padding: '1rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        <strong style={{ color: 'var(--primary)' }}>💡 Formato aceptado (copiar desde Excel):</strong>
+                        <br/>
+                        Columnas en cualquier orden: <code style={{ background: '#e8edff', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>CURSO | NOMBRE | % ASISTENCIA</code>
+                        <br/>
+                        Separador: <strong>TAB</strong> (copiar directo de Excel) o <strong>punto y coma</strong> (CSV).
+                        <br/>
+                        El % puede incluir o no el símbolo <code style={{ background: '#e8edff', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>%</code>.
+                        <br/><br/>
+                        <strong>Ejemplo:</strong>
+                        <pre style={{ margin: '0.5rem 0 0', background: 'white', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', overflowX: 'auto' }}>{`7Y8\tAGUERO AYALA FERNANDO\t75
+7Y8\tCATRILEO CARO ALEJANDRA\t80
+1Y2 HC\tFUENTES SALAS JUAN\t62`}</pre>
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>Pega aquí los datos del Excel:</label>
+                        <textarea
+                          value={importText}
+                          onChange={e => setImportText(e.target.value)}
+                          placeholder="Pega los datos copiados desde Excel..."
+                          style={{ minHeight: '180px', fontFamily: 'monospace', fontSize: '0.85rem' }}
+                          autoFocus
+                        />
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                        <button className="secondary" onClick={() => { setShowImportModal(false); setImportText(''); }}>Cancelar</button>
+                        <button
+                          className="primary"
+                          disabled={!importText.trim()}
+                          onClick={handleParseImport}
+                        >
+                          Analizar Datos →
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {importStep === 'preview' && importPreview && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {/* Summary chips */}
+                      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        <span style={{ background: '#e6faf4', color: '#12b886', padding: '0.35rem 0.9rem', borderRadius: '20px', fontWeight: 700, fontSize: '0.85rem' }}>
+                          ✅ {importPreview.matched.length} alumnos encontrados
+                        </span>
+                        {importPreview.unmatched.length > 0 && (
+                          <span style={{ background: '#fff4e6', color: '#fd7e14', padding: '0.35rem 0.9rem', borderRadius: '20px', fontWeight: 700, fontSize: '0.85rem' }}>
+                            ⚠️ {importPreview.unmatched.length} no encontrados
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Matched preview table */}
+                      {importPreview.matched.length > 0 && (
+                        <div>
+                          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Se actualizarán estos registros:</p>
+                          <div style={{ maxHeight: '250px', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                            <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse' }}>
+                              <thead>
+                                <tr style={{ background: 'var(--bg-subtle)' }}>
+                                  <th style={{ padding: '0.6rem 0.8rem', textAlign: 'left', fontWeight: 600, color: 'var(--text-muted)', fontSize: '0.75rem' }}>Alumno (Sistema)</th>
+                                  <th style={{ padding: '0.6rem 0.8rem', textAlign: 'left', fontWeight: 600, color: 'var(--text-muted)', fontSize: '0.75rem' }}>Curso</th>
+                                  <th style={{ padding: '0.6rem 0.8rem', textAlign: 'center', fontWeight: 600, color: 'var(--text-muted)', fontSize: '0.75rem' }}>% Mes</th>
+                                  <th style={{ padding: '0.6rem 0.8rem', textAlign: 'center', fontWeight: 600, color: 'var(--text-muted)', fontSize: '0.75rem' }}>% Acum.</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {importPreview.matched.map((r, i) => (
+                                  <tr key={i} style={{ borderTop: '1px solid var(--border)' }}>
+                                    <td style={{ padding: '0.6rem 0.8rem' }}>{r.nombreExistente}</td>
+                                    <td style={{ padding: '0.6rem 0.8rem', color: 'var(--text-muted)' }}>{r.curso}</td>
+                                    <td style={{ padding: '0.6rem 0.8rem', textAlign: 'center', fontWeight: 700, color: r.asistenciaMes < 50 ? 'var(--danger)' : r.asistenciaMes < 75 ? 'var(--warning)' : 'var(--success)' }}>
+                                      {r.asistenciaMes}%
+                                    </td>
+                                    <td style={{ padding: '0.6rem 0.8rem', textAlign: 'center', color: 'var(--text-secondary)' }}>{r.asistenciaAcum}%</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Unmatched list */}
+                      {importPreview.unmatched.length > 0 && (
+                        <div>
+                          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fd7e14', marginBottom: '0.4rem' }}>⚠️ No se encontraron en el sistema (serán ignorados):</p>
+                          <div style={{ background: '#fff9f0', border: '1px solid #ffd8a8', borderRadius: '10px', padding: '0.75rem', fontSize: '0.82rem', color: '#7d4100', maxHeight: '100px', overflowY: 'auto' }}>
+                            {importPreview.unmatched.map((u, i) => (
+                              <div key={i}>{u.nombre} {u.curso ? `(${u.curso})` : ''} — {u.pct}%</div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                        <button className="secondary" onClick={() => setImportStep('paste')}>← Volver</button>
+                        <button
+                          className="primary"
+                          disabled={importPreview.matched.length === 0}
+                          onClick={handleConfirmImport}
+                        >
+                          ✅ Confirmar e Importar {importPreview.matched.length} registros
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div style={{ marginBottom: '1.5rem' }}>
               <input 
