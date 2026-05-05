@@ -44,6 +44,7 @@ export default function App() {
   const [searchTermLicencias, setSearchTermLicencias] = useState('');
   const [showAlertaModal, setShowAlertaModal] = useState(false);
   const [showLicenciaModal, setShowLicenciaModal] = useState(false);
+  const [modalPosition, setModalPosition] = useState(null);
   const [selectedStudentForReport, setSelectedStudentForReport] = useState('');
 
   const studentHistory = useMemo(() => {
@@ -318,7 +319,12 @@ export default function App() {
     }));
   };
 
-  const handleEditAlerta = (alerta) => {
+  const handleEditAlerta = (alerta, e) => {
+    if (e && e.clientY) {
+      setModalPosition(Math.min(e.clientY - 50, window.innerHeight - 500));
+    } else {
+      setModalPosition(null);
+    }
     const opcionesPredefinidas = ['Derivado a Dupla Psicosocial', 'Citación de apoderado/adulto', 'Entrevista Personal', 'Visita Domiciliaria'];
     let accionesSeleccionadas = [];
     let otraAccion = '';
@@ -759,8 +765,8 @@ export default function App() {
             </div>
 
             {showLicenciaModal && (
-              <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '500px', margin: '1rem' }}>
+              <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '500px', margin: '1rem', background: 'var(--bg-dark)', border: '1px solid var(--primary)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
                   <h3 style={{ marginBottom: '1.5rem' }}>Nueva Licencia Médica</h3>
                   <form onSubmit={(e) => { handleAddLicencia(e); setShowLicenciaModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
@@ -846,7 +852,14 @@ export default function App() {
                 >
                   <AlertTriangle size={18} /> {filterCriticos ? 'Mostrando Críticos (<50%)' : 'Filtrar Casos Críticos'}
                 </button>
-                <button className="primary" onClick={() => setShowAlertaModal(true)}>+ Agregar Alerta</button>
+                <button className="primary" onClick={(e) => {
+                  if (e && e.clientY) {
+                    setModalPosition(Math.min(e.clientY - 50, window.innerHeight - 500));
+                  } else {
+                    setModalPosition(null);
+                  }
+                  setShowAlertaModal(true);
+                }}>+ Agregar Alerta</button>
               </div>
             </div>
 
@@ -861,8 +874,8 @@ export default function App() {
             </div>
 
             {(showAlertaModal || editandoAlertaId) && (
-              <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '600px', margin: '1rem', maxHeight: '90vh', overflowY: 'auto' }}>
+              <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: modalPosition !== null ? 'flex-start' : 'center', paddingTop: modalPosition !== null ? `${Math.max(20, modalPosition)}px` : '0' }}>
+                <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '600px', margin: '1rem', maxHeight: '90vh', overflowY: 'auto', background: 'var(--bg-dark)', border: '1px solid var(--primary)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
                   <h3 style={{ marginBottom: '1.5rem' }}>{editandoAlertaId ? 'Editar Alerta' : 'Nueva Alerta'}</h3>
                   <form onSubmit={(e) => { handleAddAlerta(e); setShowAlertaModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
@@ -1023,7 +1036,7 @@ export default function App() {
                           <button 
                             className="secondary" 
                             style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', marginRight: '0.5rem' }}
-                            onClick={() => handleEditAlerta(a)}
+                            onClick={(e) => handleEditAlerta(a, e)}
                           >
                             Editar
                           </button>
