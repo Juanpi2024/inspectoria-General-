@@ -276,6 +276,30 @@ export default function App() {
     return Array.from(nombres).sort();
   }, [reportesList, data.alertas, data.licencias]);
 
+  const alumnosPorCurso = useMemo(() => {
+    const map = new Map();
+    const addStudent = (nombre, curso) => {
+      if (!nombre || !curso) return;
+      const c = String(curso).trim();
+      const n = String(nombre).trim();
+      if (!map.has(c)) map.set(c, new Set());
+      map.get(c).add(n);
+    };
+
+    reportesList.forEach(r => {
+      (r.alertas || []).forEach(a => addStudent(a.nombre, a.curso));
+      (r.licencias || []).forEach(l => addStudent(l.nombre, l.curso));
+    });
+    (data.alertas || []).forEach(a => addStudent(a.nombre, a.curso));
+    (data.licencias || []).forEach(l => addStudent(l.nombre, l.curso));
+
+    const result = {};
+    map.forEach((nombresSet, curso) => {
+      result[curso] = Array.from(nombresSet).sort();
+    });
+    return result;
+  }, [reportesList, data.alertas, data.licencias]);
+
   const uniqueCursos = CURSOS_OFICIALES;
 
   const [nuevaLicencia, setNuevaLicencia] = useState({
@@ -777,10 +801,6 @@ export default function App() {
                 <div className="modal-card animate-fade-in" style={{ maxWidth: '500px' }}>
                   <h3 style={{ marginBottom: '1.5rem' }}>Nueva Licencia Médica</h3>
                   <form onSubmit={(e) => { handleAddLicencia(e); setShowLicenciaModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label>Nombre Estudiante</label>
-                      <input required type="text" list="nombres-list" value={nuevaLicencia.nombre} onChange={e => setNuevaLicencia({...nuevaLicencia, nombre: e.target.value})} />
-                    </div>
                     <div className="grid-2">
                       <div className="form-group" style={{ marginBottom: 0 }}>
                         <label>Curso</label>
@@ -790,9 +810,16 @@ export default function App() {
                         </select>
                       </div>
                       <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label>Días Justifica</label>
-                        <input required type="number" min="1" placeholder="Ej: 3" value={nuevaLicencia.diasJustificados} onChange={e => setNuevaLicencia({...nuevaLicencia, diasJustificados: e.target.value})} />
+                        <label>Nombre Estudiante</label>
+                        <input required type="text" list="nombres-list-licencia" value={nuevaLicencia.nombre} onChange={e => setNuevaLicencia({...nuevaLicencia, nombre: e.target.value})} placeholder={nuevaLicencia.curso ? "Selecciona o escribe..." : "Primero seleccione curso"} />
+                        <datalist id="nombres-list-licencia">
+                          {(nuevaLicencia.curso && alumnosPorCurso[nuevaLicencia.curso] ? alumnosPorCurso[nuevaLicencia.curso] : uniqueNombres).map(n => <option key={n} value={n} />)}
+                        </datalist>
                       </div>
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Días Justifica</label>
+                      <input required type="number" min="1" placeholder="Ej: 3" value={nuevaLicencia.diasJustificados} onChange={e => setNuevaLicencia({...nuevaLicencia, diasJustificados: e.target.value})} />
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                       <button type="button" className="secondary" style={{ flex: 1 }} onClick={() => setShowLicenciaModal(false)}>Cancelar</button>
@@ -889,11 +916,7 @@ export default function App() {
                 <div className="modal-card animate-fade-in" style={{ maxWidth: '600px' }}>
                   <h3 style={{ marginBottom: '1.5rem' }}>{editandoAlertaId ? 'Editar Alerta' : 'Nueva Alerta'}</h3>
                   <form onSubmit={(e) => { handleAddAlerta(e); setShowAlertaModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label>Nombre Estudiante</label>
-                      <input required type="text" list="nombres-list" value={nuevaAlerta.nombre} onChange={e => setNuevaAlerta({...nuevaAlerta, nombre: e.target.value})} />
-                    </div>
-                    <div className="grid-3" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+                    <div className="grid-2">
                       <div className="form-group" style={{ marginBottom: 0 }}>
                         <label>Curso</label>
                         <select required value={nuevaAlerta.curso} onChange={e => setNuevaAlerta({...nuevaAlerta, curso: e.target.value})}>
@@ -901,6 +924,15 @@ export default function App() {
                           {CURSOS_OFICIALES.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                       </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>Nombre Estudiante</label>
+                        <input required type="text" list="nombres-list-alerta" value={nuevaAlerta.nombre} onChange={e => setNuevaAlerta({...nuevaAlerta, nombre: e.target.value})} placeholder={nuevaAlerta.curso ? "Selecciona o escribe..." : "Primero seleccione curso"} />
+                        <datalist id="nombres-list-alerta">
+                          {(nuevaAlerta.curso && alumnosPorCurso[nuevaAlerta.curso] ? alumnosPorCurso[nuevaAlerta.curso] : uniqueNombres).map(n => <option key={n} value={n} />)}
+                        </datalist>
+                      </div>
+                    </div>
+                    <div className="grid-2">
                       <div className="form-group" style={{ marginBottom: 0 }}>
                         <label>% Mes</label>
                         <input required type="number" value={nuevaAlerta.asistenciaMes} onChange={e => {
