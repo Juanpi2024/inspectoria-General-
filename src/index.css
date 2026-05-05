@@ -1,17 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-dark: #0f172a;
-  --bg-card: rgba(30, 41, 59, 0.7);
+  --bg-dark: #090e17; /* Más profundo y premium */
+  --bg-card: rgba(15, 23, 42, 0.55);
   --primary: #3b82f6;
-  --primary-glow: rgba(59, 130, 246, 0.5);
+  --primary-glow: rgba(59, 130, 246, 0.4);
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(59, 130, 246, 0.6);
+  --glass-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.4), 0 4px 16px -4px rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -21,15 +22,34 @@
 }
 
 body {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.12), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.08), transparent 40%),
+    radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.08), transparent 50%);
   color: var(--text-main);
   min-height: 100vh;
-  line-height: 1.5;
+  line-height: 1.6;
   background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar for premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .app-container {
@@ -69,19 +89,20 @@ h3 {
 /* Glass Card */
 .card {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.5rem;
+  border-radius: 20px;
+  padding: 2rem;
   box-shadow: var(--glass-shadow);
-  margin-bottom: 1.5rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  margin-bottom: 2rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.5), 0 8px 24px -8px rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(255,255,255, 0.12);
 }
 
 /* Layout */
@@ -117,19 +138,22 @@ label {
 
 input, select, textarea {
   width: 100%;
-  padding: 0.75rem 1rem;
-  background: rgba(15, 23, 42, 0.6);
+  padding: 0.85rem 1.2rem;
+  background: rgba(15, 23, 42, 0.7);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 12px;
   color: var(--text-main);
   font-family: inherit;
+  font-size: 0.95rem;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: all 0.25s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--primary-glow);
+  border-color: var(--border-focus);
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px var(--primary-glow);
 }
 
 textarea {
@@ -141,45 +165,58 @@ button {
   cursor: pointer;
   font-family: inherit;
   border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  padding: 0.85rem 1.75rem;
   font-weight: 600;
-  transition: all 0.2s;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  position: relative;
+  overflow: hidden;
+}
+
+button:active {
+  transform: scale(0.97);
 }
 
 button.primary {
-  background: var(--primary);
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
-  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+  box-shadow: 0 6px 20px -4px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 button.primary:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.5);
+  background: linear-gradient(135deg, #4f8bf9, #336fee);
+  box-shadow: 0 8px 24px -4px rgba(59, 130, 246, 0.6), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
 button.secondary {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-main);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
 }
 
 button.secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 button.danger {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.1);
   color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 button.danger:hover {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fff;
 }
 
 /* Status Colors */
@@ -231,13 +268,20 @@ button.danger:hover {
 .tab {
   background: transparent;
   color: var(--text-muted);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.tab:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .tab.active {
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-main);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
 /* Tables */
@@ -247,19 +291,27 @@ button.danger:hover {
 
 table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 th, td {
-  padding: 0.75rem 1rem;
+  padding: 1rem 1.2rem;
   text-align: left;
   border-bottom: 1px solid var(--border);
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 th {
   color: var(--text-muted);
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 tr:last-child td {
