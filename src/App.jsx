@@ -46,6 +46,8 @@ export default function App() {
   const [showLicenciaModal, setShowLicenciaModal] = useState(false);
   const [modalPosition, setModalPosition] = useState(null);
   const [selectedStudentForReport, setSelectedStudentForReport] = useState('');
+  const [inputManualLicencia, setInputManualLicencia] = useState(false);
+  const [inputManualAlerta, setInputManualAlerta] = useState(false);
 
   const studentHistory = useMemo(() => {
     if (!selectedStudentForReport) return null;
@@ -811,10 +813,49 @@ export default function App() {
                       </div>
                       <div className="form-group" style={{ marginBottom: 0 }}>
                         <label>Nombre Estudiante</label>
-                        <input required type="text" list="nombres-list-licencia" value={nuevaLicencia.nombre} onChange={e => setNuevaLicencia({...nuevaLicencia, nombre: e.target.value})} placeholder={nuevaLicencia.curso ? "Selecciona o escribe..." : "Primero seleccione curso"} />
-                        <datalist id="nombres-list-licencia">
-                          {(nuevaLicencia.curso && alumnosPorCurso[nuevaLicencia.curso] ? alumnosPorCurso[nuevaLicencia.curso] : uniqueNombres).map(n => <option key={n} value={n} />)}
-                        </datalist>
+                        {!inputManualLicencia ? (
+                          <select 
+                            required 
+                            className="form-control"
+                            value={nuevaLicencia.nombre} 
+                            onChange={e => {
+                              if (e.target.value === '__OTRO__') {
+                                setInputManualLicencia(true);
+                                setNuevaLicencia({...nuevaLicencia, nombre: ''});
+                              } else {
+                                setNuevaLicencia({...nuevaLicencia, nombre: e.target.value});
+                              }
+                            }}
+                            disabled={!nuevaLicencia.curso}
+                          >
+                            <option value="">{nuevaLicencia.curso ? "Seleccione alumno..." : "Primero seleccione curso"}</option>
+                            {(nuevaLicencia.curso && alumnosPorCurso[nuevaLicencia.curso] ? alumnosPorCurso[nuevaLicencia.curso] : uniqueNombres).map(n => <option key={n} value={n}>{n}</option>)}
+                            <option value="__OTRO__">+ Ingresar nuevo alumno...</option>
+                          </select>
+                        ) : (
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input 
+                              required 
+                              type="text" 
+                              className="form-control"
+                              value={nuevaLicencia.nombre} 
+                              onChange={e => setNuevaLicencia({...nuevaLicencia, nombre: e.target.value.toUpperCase()})} 
+                              placeholder="Escriba el nombre..." 
+                              autoFocus
+                            />
+                            <button 
+                              type="button" 
+                              className="secondary" 
+                              onClick={() => {
+                                setInputManualLicencia(false);
+                                setNuevaLicencia({...nuevaLicencia, nombre: ''});
+                              }}
+                              title="Volver a la lista"
+                            >
+                              Lista
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="form-group" style={{ marginBottom: 0 }}>
@@ -926,10 +967,49 @@ export default function App() {
                       </div>
                       <div className="form-group" style={{ marginBottom: 0 }}>
                         <label>Nombre Estudiante</label>
-                        <input required type="text" list="nombres-list-alerta" value={nuevaAlerta.nombre} onChange={e => setNuevaAlerta({...nuevaAlerta, nombre: e.target.value})} placeholder={nuevaAlerta.curso ? "Selecciona o escribe..." : "Primero seleccione curso"} />
-                        <datalist id="nombres-list-alerta">
-                          {(nuevaAlerta.curso && alumnosPorCurso[nuevaAlerta.curso] ? alumnosPorCurso[nuevaAlerta.curso] : uniqueNombres).map(n => <option key={n} value={n} />)}
-                        </datalist>
+                        {!inputManualAlerta ? (
+                          <select 
+                            required 
+                            className="form-control"
+                            value={nuevaAlerta.nombre} 
+                            onChange={e => {
+                              if (e.target.value === '__OTRO__') {
+                                setInputManualAlerta(true);
+                                setNuevaAlerta({...nuevaAlerta, nombre: ''});
+                              } else {
+                                setNuevaAlerta({...nuevaAlerta, nombre: e.target.value});
+                              }
+                            }}
+                            disabled={!nuevaAlerta.curso}
+                          >
+                            <option value="">{nuevaAlerta.curso ? "Seleccione alumno..." : "Primero seleccione curso"}</option>
+                            {(nuevaAlerta.curso && alumnosPorCurso[nuevaAlerta.curso] ? alumnosPorCurso[nuevaAlerta.curso] : uniqueNombres).map(n => <option key={n} value={n}>{n}</option>)}
+                            <option value="__OTRO__">+ Ingresar nuevo alumno...</option>
+                          </select>
+                        ) : (
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input 
+                              required 
+                              type="text" 
+                              className="form-control"
+                              value={nuevaAlerta.nombre} 
+                              onChange={e => setNuevaAlerta({...nuevaAlerta, nombre: e.target.value.toUpperCase()})} 
+                              placeholder="Escriba el nombre..." 
+                              autoFocus
+                            />
+                            <button 
+                              type="button" 
+                              className="secondary" 
+                              onClick={() => {
+                                setInputManualAlerta(false);
+                                setNuevaAlerta({...nuevaAlerta, nombre: ''});
+                              }}
+                              title="Volver a la lista"
+                            >
+                              Lista
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="grid-2">
