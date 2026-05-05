@@ -307,6 +307,7 @@ export default function App() {
   const [nuevaLicencia, setNuevaLicencia] = useState({
     nombre: '',
     curso: '',
+    tipoCertificado: 'licencia',
     diasJustificados: ''
   });
 
@@ -323,7 +324,8 @@ export default function App() {
       };
     });
     
-    setNuevaLicencia({ nombre: '', curso: '', diasJustificados: '' });
+    setNuevaLicencia({ nombre: '', curso: '', tipoCertificado: 'licencia', diasJustificados: '' });
+    setInputManualLicencia(false);
   };
 
   const handleRemoveLicencia = (id) => {
@@ -858,9 +860,25 @@ export default function App() {
                         )}
                       </div>
                     </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label>Días Justifica</label>
-                      <input required type="number" min="1" placeholder="Ej: 3" value={nuevaLicencia.diasJustificados} onChange={e => setNuevaLicencia({...nuevaLicencia, diasJustificados: e.target.value})} />
+                    <div className="grid-2">
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>Tipo Certificado</label>
+                        <select required value={nuevaLicencia.tipoCertificado} onChange={e => {
+                          const tipo = e.target.value;
+                          setNuevaLicencia({...nuevaLicencia, tipoCertificado: tipo, diasJustificados: tipo === 'atencion' ? '0' : ''});
+                        }}>
+                          <option value="licencia">Licencia Médica</option>
+                          <option value="atencion">Certificado de Atención</option>
+                        </select>
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>{nuevaLicencia.tipoCertificado === 'atencion' ? 'Días' : 'Días Justifica'}</label>
+                        {nuevaLicencia.tipoCertificado === 'atencion' ? (
+                          <input type="number" value="0" disabled style={{ opacity: 0.6 }} />
+                        ) : (
+                          <input required type="number" min="1" placeholder="Ej: 3" value={nuevaLicencia.diasJustificados} onChange={e => setNuevaLicencia({...nuevaLicencia, diasJustificados: e.target.value})} />
+                        )}
+                      </div>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                       <button type="button" className="secondary" style={{ flex: 1 }} onClick={() => setShowLicenciaModal(false)}>Cancelar</button>
@@ -878,7 +896,8 @@ export default function App() {
                     <tr>
                       <th>Estudiante</th>
                       <th>Curso</th>
-                      <th>Días Justificados</th>
+                      <th>Tipo</th>
+                      <th>Días</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -892,7 +911,13 @@ export default function App() {
                           {l.retirado && <span style={{ marginLeft: '0.5rem', color: 'var(--red)', fontSize: '0.75rem', fontWeight: 'bold' }}>(RETIRADO)</span>}
                         </td>
                         <td>{l.curso || '-'}</td>
-                        <td>{l.diasJustificados} días</td>
+                        <td>
+                          {l.tipoCertificado === 'atencion' 
+                            ? <span style={{ color: 'var(--orange, #f59e0b)', fontWeight: 500 }}>Cert. Atención</span>
+                            : <span style={{ color: 'var(--primary)', fontWeight: 500 }}>Licencia Médica</span>
+                          }
+                        </td>
+                        <td>{l.tipoCertificado === 'atencion' ? 'No acredita' : `${l.diasJustificados} días`}</td>
                         <td style={{ textAlign: 'right' }}>
                           <button 
                             className="danger" 
