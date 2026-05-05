@@ -310,19 +310,32 @@ export default function App() {
     tipoCertificado: 'licencia',
     diasJustificados: ''
   });
+  const [editandoLicenciaId, setEditandoLicenciaId] = useState(null);
 
   const handleAddLicencia = (e) => {
     e.preventDefault();
     if (!nuevaLicencia.nombre) return;
     
-    setData(prev => {
-      const newLicencias = [...(prev.licencias || []), { ...nuevaLicencia, id: Date.now() }];
-      return {
+    if (editandoLicenciaId) {
+      // Modo edición: actualizar licencia existente
+      setData(prev => ({
         ...prev,
-        licencias: newLicencias,
-        casosLicencias: newLicencias.length
-      };
-    });
+        licencias: (prev.licencias || []).map(l => 
+          l.id === editandoLicenciaId ? { ...l, ...nuevaLicencia } : l
+        )
+      }));
+      setEditandoLicenciaId(null);
+    } else {
+      // Modo nuevo: agregar licencia
+      setData(prev => {
+        const newLicencias = [...(prev.licencias || []), { ...nuevaLicencia, id: Date.now() }];
+        return {
+          ...prev,
+          licencias: newLicencias,
+          casosLicencias: newLicencias.length
+        };
+      });
+    }
     
     setNuevaLicencia({ nombre: '', curso: '', tipoCertificado: 'licencia', diasJustificados: '' });
     setInputManualLicencia(false);
@@ -800,11 +813,11 @@ export default function App() {
               />
             </div>
 
-            {showLicenciaModal && (
+            {(showLicenciaModal || editandoLicenciaId) && (
               <div className="modal-overlay">
                 <div className="modal-card animate-fade-in" style={{ maxWidth: '500px' }}>
-                  <h3 style={{ marginBottom: '1.5rem' }}>Nueva Licencia Médica</h3>
-                  <form onSubmit={(e) => { handleAddLicencia(e); setShowLicenciaModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <h3 style={{ marginBottom: '1.5rem' }}>{editandoLicenciaId ? 'Editar Licencia' : 'Nueva Licencia Médica'}</h3>
+                  <form onSubmit={(e) => { handleAddLicencia(e); setShowLicenciaModal(false); setEditandoLicenciaId(null); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div className="grid-2">
                       <div className="form-group" style={{ marginBottom: 0 }}>
                         <label>Curso</label>
@@ -881,8 +894,8 @@ export default function App() {
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                      <button type="button" className="secondary" style={{ flex: 1 }} onClick={() => setShowLicenciaModal(false)}>Cancelar</button>
-                      <button type="submit" className="primary" style={{ flex: 1 }}>Guardar</button>
+                      <button type="button" className="secondary" style={{ flex: 1 }} onClick={() => { setShowLicenciaModal(false); setEditandoLicenciaId(null); setNuevaLicencia({ nombre: '', curso: '', tipoCertificado: 'licencia', diasJustificados: '' }); setInputManualLicencia(false); }}>Cancelar</button>
+                      <button type="submit" className="primary" style={{ flex: 1 }}>{editandoLicenciaId ? 'Actualizar' : 'Guardar'}</button>
                     </div>
                   </form>
                 </div>
@@ -918,7 +931,18 @@ export default function App() {
                           }
                         </td>
                         <td>{l.tipoCertificado === 'atencion' ? 'No acredita' : `${l.diasJustificados} días`}</td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <button 
+                            className="secondary" 
+                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', marginRight: '0.5rem' }}
+                            onClick={() => {
+                              setNuevaLicencia({ nombre: l.nombre, curso: l.curso, tipoCertificado: l.tipoCertificado || 'licencia', diasJustificados: l.diasJustificados || '' });
+                              setEditandoLicenciaId(l.id);
+                              setInputManualLicencia(false);
+                            }}
+                          >
+                            Editar
+                          </button>
                           <button 
                             className="danger" 
                             style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
