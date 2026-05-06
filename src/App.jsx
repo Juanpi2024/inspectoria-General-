@@ -993,16 +993,24 @@ export default function App() {
                         <label>Tipo Certificado</label>
                         <select required value={nuevaLicencia.tipoCertificado} onChange={e => {
                           const tipo = e.target.value;
-                          setNuevaLicencia({...nuevaLicencia, tipoCertificado: tipo, diasJustificados: tipo === 'atencion' ? '0' : ''});
+                          setNuevaLicencia({...nuevaLicencia, tipoCertificado: tipo, diasJustificados: ''});
                         }}>
                           <option value="licencia">Licencia Médica</option>
                           <option value="atencion">Certificado de Atención</option>
                         </select>
                       </div>
                       <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label>{nuevaLicencia.tipoCertificado === 'atencion' ? 'Días' : 'Días Justifica'}</label>
+                        <label>Días que acredita</label>
                         {nuevaLicencia.tipoCertificado === 'atencion' ? (
-                          <input type="number" value="0" disabled style={{ opacity: 0.6 }} />
+                          <select
+                            required
+                            value={nuevaLicencia.diasJustificados}
+                            onChange={e => setNuevaLicencia({...nuevaLicencia, diasJustificados: e.target.value})}
+                          >
+                            <option value="">Seleccione...</option>
+                            <option value="0">0 días (no acredita)</option>
+                            <option value="1">1 día (acredita máximo)</option>
+                          </select>
                         ) : (
                           <input required type="number" min="1" placeholder="Ej: 3" value={nuevaLicencia.diasJustificados} onChange={e => setNuevaLicencia({...nuevaLicencia, diasJustificados: e.target.value})} />
                         )}
@@ -1045,7 +1053,7 @@ export default function App() {
                             : <span style={{ color: 'var(--primary)', fontWeight: 500 }}>Licencia Médica</span>
                           }
                         </td>
-                        <td>{l.tipoCertificado === 'atencion' ? 'No acredita' : `${l.diasJustificados} días`}</td>
+                        <td>{l.tipoCertificado === 'atencion' ? `${l.diasJustificados || 0} día(s)` : `${l.diasJustificados} días`}</td>
                         <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                           <button 
                             className="secondary" 
