@@ -753,15 +753,16 @@ export default function App() {
           {subTab === 'resumen' && (
             <div className="grid-2 animate-fade-in">
               <div className="card" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
-                <h3 style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>Alumnos en Riesgo</h3>
-                <div style={{ fontSize: '4rem', fontWeight: 'bold', color: (data.alertas||[]).length > 0 ? 'var(--red)' : 'var(--green)', lineHeight: 1 }}>
-                  {(data.alertas||[]).length}
+                <h3 style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>Casos Críticos (&lt;50% asistencia)</h3>
+                <div style={{ fontSize: '4rem', fontWeight: 'bold', color: (data.alertas||[]).filter(a => Number(a.asistenciaAcum) < 50).length > 0 ? 'var(--red)' : 'var(--green)', lineHeight: 1 }}>
+                  {(data.alertas||[]).filter(a => Number(a.asistenciaAcum) < 50).length}
                 </div>
-                <p style={{ marginTop: '1rem' }}>Estudiantes en Alerta Temprana</p>
+                <p style={{ marginTop: '1rem' }}>Estudiantes bajo umbral crítico (Meta 14)</p>
                 <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                  {(data.alertas||[]).filter(a => a.accion === 'Sin acción').length} sin acción tomada
+                  {(data.alertas||[]).length} alumnos en seguimiento total
                 </div>
                 <button className="primary" style={{ marginTop: '1.5rem' }} onClick={() => setSubTab('alertas')}>Gestionar Alertas</button>
+
               </div>
               <div className="card" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
                 <h3 style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>Licencias este Mes</h3>
