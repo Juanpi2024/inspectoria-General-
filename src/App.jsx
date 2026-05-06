@@ -208,7 +208,7 @@ export default function App() {
       try {
         const docRef = doc(db, 'reportes', currentId);
         const { id, ...dataToSave } = data; 
-        await setDoc(docRef, dataToSave, { merge: true });
+        await setDoc(docRef, dataToSave);
         setSaveStatus('saved');
       } catch (err) {
         console.error("Error al guardar en Firebase:", err);
