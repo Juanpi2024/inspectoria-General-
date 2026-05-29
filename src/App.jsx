@@ -5,12 +5,31 @@ import {
 } from 'lucide-react';
 import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
+import alumnosData from '../alumnos_data.json';
 import './index.css';
 
 const CURSOS_OFICIALES = [
   '7Y8', '1Y2 HC', '3Y4 HC', '1Y2 ELE', '3 ELEC', 
   '4 ELEC', '1Y2 PAR', '3 PAR', '4 PAR'
 ];
+
+// Helper para extraer el mes para ordenamiento
+const getMonthIndex = (periodo) => {
+  if (!periodo) return -1;
+  const p = periodo.toLowerCase();
+  const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  for (let i = 0; i < meses.length; i++) {
+    if (p.includes(meses[i])) return i;
+  }
+  return -1;
+};
+
+// Helper para extraer el año para ordenamiento
+const getYear = (periodo) => {
+  if (!periodo) return 0;
+  const match = periodo.match(/\d{4}/);
+  return match ? parseInt(match[0]) : 2026; // Default al año actual si no se especifica
+};
 
 const defaultData = {
   periodo: '',
@@ -37,10 +56,14 @@ export default function App() {
   const [offlineMode, setOfflineMode] = useState(false);
   const [configError, setConfigError] = useState(null);
   const [reportesList, setReportesList] = useState([]);
-  const [currentId, setCurrentId] = useState(null);
+  const [currentId, setCurrentId] = useState(() => localStorage.getItem('lastSelectedReportId'));
   const [data, setData] = useState(defaultData);
   const [searchTermAlertas, setSearchTermAlertas] = useState('');
   const [filterCriticos, setFilterCriticos] = useState(false);
+  const [reportFilterUnder50, setReportFilterUnder50] = useState(false);
+  const [reportFilterDerivacion, setReportFilterDerivacion] = useState(false);
+  const [expedienteFilterUnder50, setExpedienteFilterUnder50] = useState(false);
+  const [expedienteFilterDerivacion, setExpedienteFilterDerivacion] = useState(false);
   const [searchTermLicencias, setSearchTermLicencias] = useState('');
   const [showAlertaModal, setShowAlertaModal] = useState(false);
   const [showLicenciaModal, setShowLicenciaModal] = useState(false);
@@ -116,54 +139,120 @@ export default function App() {
       });
   }, [studentHistory]);
 
-  // Cargar desde Firebase en tiempo real con timeout de seguridad
+  const retiredStudentsMap = useMemo(() => {
+    const map = new Map();
+    if (!alumnosData) return map;
+    alumnosData.forEach(c => {
+      if (c.alumnos) {
+        c.alumnos.forEach(a => {
+          if (a.retirado) {
+            map.set(a.nombre, a.fechaRetiro);
+          }
+        });
+      }
+    });
+    return map;
+  }, []);
+
+  const matriculaFinal = useMemo(() => {
+    return (Number(data.matriculaTotal) || 0) + (Number(data.nuevasIncorporaciones) || 0) - (Number(data.retirosEfectivos) || 0);
+  }, [data.matriculaTotal, data.nuevasIncorporaciones, data.retirosEfectivos]);
+
+  const suggestedAnalisis = useMemo(() => {
+    const inc = Number(data.nuevasIncorporaciones) || 0;
+    const ret = Number(data.retirosEfectivos) || 0;
+    const diff = inc - ret;
+    let text = `Matrícula inicial de ${data.matriculaTotal}. `;
+    
+    if (inc === 0 && ret === 0) {
+      text += `No se registran variaciones en la matrícula durante el periodo. Se mantiene en ${matriculaFinal} estudiantes.`;
+    } else if (diff > 0) {
+      text += `Se observa un crecimiento de ${diff} alumnos (${inc} incorporaciones vs ${ret} retiros), finalizando con ${matriculaFinal} estudiantes. Matrícula en alza.`;
+    } else if (diff < 0) {
+      text += `Se registra una disminución de ${Math.abs(diff)} alumnos (${inc} incorporaciones vs ${ret} retiros), finalizando con ${matriculaFinal} estudiantes. Se observa fuga de matrícula.`;
+    } else {
+      text += `La matrícula se mantiene estable en ${matriculaFinal} alumnos (las incorporaciones compensan los retiros).`;
+    }
+    return text;
+  }, [data.matriculaTotal, data.nuevasIncorporaciones, data.retirosEfectivos, matriculaFinal]);
+
+  // Automatizar cálculos de Riesgo de Repitencia y Casos de Licencias
   useEffect(() => {
+    if (loading) return;
+    
+    const totalMatricula = (Number(data.matriculaTotal) || 0) + (Number(data.nuevasIncorporaciones) || 0) - (Number(data.retirosEfectivos) || 0);
+    const newRiesgo = totalMatricula > 0 ? Math.round(((data.alertas || []).length / totalMatricula) * 100) : 0;
+    const newCasosLicencias = (data.licencias || []).length;
+    
+    if (newRiesgo !== data.riesgoRepitencia || newCasosLicencias !== data.casosLicencias) {
+      setData(prev => ({
+        ...prev,
+        riesgoRepitencia: newRiesgo,
+        casosLicencias: newCasosLicencias
+      }));
+    }
+  }, [data.alertas, data.licencias, data.matriculaTotal, data.nuevasIncorporaciones, data.retirosEfectivos, loading]);
+
+  // Cargar desde Firebase en tiempo real con timeout de seguridad
+  // Función para reintentar la conexión
+  const retryConnection = () => {
+    setLoading(true);
+    setLoadingMsg('Reintentando conexión con Firebase...');
+    setOfflineMode(false);
+    setConfigError(null);
+  };
+
+  const loadData = () => {
     let unsubscribe = () => {};
     let resolved = false;
 
-    // Timeout: si en 5 segundos no carga, arrancar sin Firebase
     const timeout = setTimeout(() => {
       if (!resolved) {
         resolved = true;
-        console.warn("⏱️ Timeout: Firestore no respondió en 5s. Iniciando en modo offline.");
+        console.warn("⏱️ Timeout: Firestore no respondió en 10s. Iniciando en modo offline.");
         setOfflineMode(true);
         setLoading(false);
       }
-    }, 5000);
+    }, 10000);
 
-    // Mensaje progresivo
     const msgTimer = setTimeout(() => {
-      if (!resolved) setLoadingMsg('Verificando base de datos Firestore...');
-    }, 2000);
+      if (!resolved) setLoadingMsg('La conexión está tardando más de lo habitual...');
+    }, 3000);
 
     try {
       unsubscribe = onSnapshot(collection(db, 'reportes'), (snapshot) => {
+        const list = [];
+        snapshot.forEach((docSnap) => {
+          list.push({ ...defaultData, id: docSnap.id, ...docSnap.data() });
+        });
+        
+        list.sort((a, b) => {
+          const yearA = getYear(a.periodo || a.id);
+          const yearB = getYear(b.periodo || b.id);
+          if (yearA !== yearB) return yearB - yearA;
+          return getMonthIndex(b.periodo || b.id) - getMonthIndex(a.periodo || a.id);
+        });
+        
+        setReportesList(list);
+        setOfflineMode(false);
+        setConfigError(null);
+        setLoading(false);
+
         if (!resolved) {
           resolved = true;
           clearTimeout(timeout);
           clearTimeout(msgTimer);
         }
-        const list = [];
-        snapshot.forEach((docSnap) => {
-          list.push({ ...defaultData, id: docSnap.id, ...docSnap.data() });
-        });
-        list.sort((a, b) => b.id.localeCompare(a.id));
-        setReportesList(list);
-        setOfflineMode(false);
-        setConfigError(null);
 
-        // Si recién cargamos y no hay id seleccionado, elegir el primero
-        setLoading(prevLoading => {
-          if (prevLoading && list.length > 0) {
-            setCurrentId(current => {
-               if (!current) {
-                 setData(list[0]);
-                 return list[0].id;
-               }
-               return current;
-            });
+        setCurrentId(current => {
+          if (!current && list.length > 0) {
+            setData(list[0]);
+            return list[0].id;
+          } else if (current) {
+            const selected = list.find(r => r.id === current);
+            if (selected) setData(selected);
           }
-          return false;
+          return current;
         });
       }, (error) => {
         console.error("Error al cargar datos desde Firebase:", error);
@@ -173,7 +262,6 @@ export default function App() {
           clearTimeout(msgTimer);
         }
         
-        // Detectar si la base de datos no existe
         if (error.code === 'not-found' || error.message.includes('database')) {
           setConfigError('DATABASE_MISSING');
         } else {
@@ -192,41 +280,66 @@ export default function App() {
       }
     }
 
-    return () => {
-      clearTimeout(timeout);
-      clearTimeout(msgTimer);
-      unsubscribe();
-    };
+    return unsubscribe;
+  };
+
+  useEffect(() => {
+    const unsubscribe = loadData();
+    return () => unsubscribe();
   }, []);
 
-  // Guardar en Firebase cuando hay cambios (solo si no estamos offline)
+  // Función para guardar explícitamente (Sobreescritura Total)
+  const saveToFirebase = async (dataToSave, id) => {
+    if (!id) return;
+    
+    setSaveStatus('saving');
+    try {
+      const docRef = doc(db, 'reportes', id);
+      
+      const sanitizedData = {};
+      Object.keys(defaultData).forEach(key => {
+        sanitizedData[key] = dataToSave[key] !== undefined ? dataToSave[key] : defaultData[key];
+      });
+
+      await setDoc(docRef, sanitizedData);
+      setSaveStatus('saved');
+      setOfflineMode(false);
+    } catch (err) {
+      console.error("Error al guardar en Firebase:", err);
+      setSaveStatus('error');
+    }
+  };
+
+  // Guardar en Firebase cuando hay cambios (con debounce)
   useEffect(() => {
     if (loading || !currentId || offlineMode) return;
     
-    setSaveStatus('saving');
-    const timer = setTimeout(async () => {
-      try {
-        const docRef = doc(db, 'reportes', currentId);
-        const { id, ...dataToSave } = data; 
-        await setDoc(docRef, dataToSave);
-        setSaveStatus('saved');
-      } catch (err) {
-        console.error("Error al guardar en Firebase:", err);
-        setSaveStatus('error');
-      }
-    }, 1000);
+    const timer = setTimeout(() => {
+      saveToFirebase(data, currentId);
+    }, 800); // Reducido a 800ms para mayor agilidad
     
     return () => clearTimeout(timer);
   }, [data, loading, currentId, offlineMode]);
 
+  // Forzar guardado antes de salir o cambiar de pestaña
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (saveStatus === 'saving') {
+        // Intentar guardar inmediatamente (aunque en sync es difícil con Firestore)
+        saveToFirebase(data, currentId);
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [data, currentId, saveStatus]);
+
   const handleSelectReporte = (id) => {
-    // Si hay datos, primero podríamos forzar un guardado si quisieramos, pero
-    // por ahora solo cambiamos de mes.
     const found = reportesList.find(r => r.id === id);
     if (found) {
       setCurrentId(id);
+      localStorage.setItem('lastSelectedReportId', id);
       setData({ ...defaultData, ...found });
-      setActiveTab('ingreso'); // Forzar la pestaña de ingreso para que puedan editar
+      setActiveTab('ingreso');
     }
   };
 
@@ -258,6 +371,8 @@ export default function App() {
     setCurrentId(id);
     setData(newData);
     setActiveTab('ingreso');
+    // Guardar inmediatamente el nuevo mes
+    saveToFirebase(newData, id);
   };
 
   const [nuevaAlerta, setNuevaAlerta] = useState({
@@ -273,12 +388,24 @@ export default function App() {
 
   const uniqueNombres = useMemo(() => {
     const nombres = new Set();
+    
+    // 1. Agregar desde el JSON oficial
+    alumnosData.forEach(c => {
+      c.alumnos.forEach(a => {
+        if (a.nombre) nombres.add(a.nombre);
+      });
+    });
+
+    // 2. Agregar desde reportes existentes (por si hay nombres nuevos)
     reportesList.forEach(r => {
       (r.alertas || []).forEach(a => { if (a.nombre) nombres.add(a.nombre); });
       (r.licencias || []).forEach(l => { if (l.nombre) nombres.add(l.nombre); });
     });
+
+    // 3. Agregar desde el estado actual
     (data.alertas || []).forEach(a => { if (a.nombre) nombres.add(a.nombre); });
     (data.licencias || []).forEach(l => { if (l.nombre) nombres.add(l.nombre); });
+    
     return Array.from(nombres).sort();
   }, [reportesList, data.alertas, data.licencias]);
 
@@ -292,6 +419,12 @@ export default function App() {
       map.get(c).add(n);
     };
 
+    // 1. Cargar desde JSON oficial
+    alumnosData.forEach(c => {
+      c.alumnos.forEach(a => addStudent(a.nombre, c.curso));
+    });
+
+    // 2. Cargar desde reportes
     reportesList.forEach(r => {
       (r.alertas || []).forEach(a => addStudent(a.nombre, a.curso));
       (r.licencias || []).forEach(l => addStudent(l.nombre, l.curso));
@@ -452,10 +585,17 @@ export default function App() {
   };
 
   const handleRemoveAlerta = (id) => {
-    setData(prev => ({
-      ...prev,
-      alertas: (prev.alertas || []).filter(a => a.id !== id)
-    }));
+    if (window.confirm('¿Está seguro de eliminar este estudiante de la lista de alertas?')) {
+      setData(prev => {
+        const newAlertas = (prev.alertas || []).filter(a => a.id !== id);
+        const totalMatricula = (Number(prev.matriculaTotal) || 0) + (Number(prev.nuevasIncorporaciones) || 0) - (Number(prev.retirosEfectivos) || 0);
+        return {
+          ...prev,
+          alertas: newAlertas,
+          riesgoRepitencia: totalMatricula > 0 ? Math.round((newAlertas.length / totalMatricula) * 100) : 0
+        };
+      });
+    }
   };
 
   // =====================================================
@@ -522,9 +662,14 @@ export default function App() {
       const existing = currentAlertas.find(a => fuzzyMatch(a.nombre, nombre));
 
       if (existing) {
-        // Calcular nuevo acumulado (promedio con anterior si existe)
-        const anterior = parseFloat(existing.asistenciaAcumAnterior || existing.asistenciaAcum || pct);
-        const nuevoAcum = Math.round((anterior + pct) / 2);
+        // Calcular nuevo acumulado: si no hay anterior, el acumulado es el mes actual
+        const prevValue = existing.asistenciaAcumAnterior || existing.asistenciaAcum;
+        const anterior = prevValue !== '' && prevValue !== undefined ? parseFloat(prevValue) : null;
+        
+        const nuevoAcum = anterior !== null 
+          ? Math.round((anterior + pct) / 2)
+          : pct;
+
         matched.push({
           id: existing.id,
           nombreExistente: existing.nombre,
@@ -532,7 +677,7 @@ export default function App() {
           curso: curso || existing.curso,
           asistenciaMes: pct,
           asistenciaAcum: nuevoAcum,
-          asistenciaAcumAnterior: anterior,
+          asistenciaAcumAnterior: anterior !== null ? anterior : pct,
         });
       } else {
         unmatched.push({ nombre, curso, pct });
@@ -628,9 +773,14 @@ export default function App() {
         {uniqueCursos.map(c => <option key={c} value={c} />)}
       </datalist>
       {offlineMode && (
-        <div className="offline-banner no-print">
-          <Info size={16} />
-          <span><strong>Modo Offline:</strong> Los datos se guardan solo en esta sesión. Conecte Firebase para sincronización permanente.</span>
+        <div className="offline-banner no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Info size={16} />
+            <span><strong>Modo Local:</strong> Los datos se guardan solo en esta sesión. Conecte Firebase para sincronización permanente.</span>
+          </div>
+          <button onClick={() => window.location.reload()} className="secondary" style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}>
+            <RefreshCw size={12} style={{ marginRight: '4px' }} /> Reconectar
+          </button>
         </div>
       )}
       <header className="no-print">
@@ -748,6 +898,13 @@ export default function App() {
               <span className="subtab-icon" style={{ background: '#fff5f5', color: '#f03e3e' }}>🩺</span>
               <span className="subtab-label">Licencias</span>
             </button>
+            <button
+              className={`subtab-btn ${subTab === 'config' ? 'active' : ''}`}
+              onClick={() => setSubTab('config')}
+            >
+              <span className="subtab-icon" style={{ background: '#f1f3f5', color: '#495057' }}>⚙️</span>
+              <span className="subtab-label">Configuración</span>
+            </button>
           </div>
 
           {subTab === 'resumen' && (
@@ -844,12 +1001,23 @@ export default function App() {
                 />
               </div>
               <div className="form-group">
-                <label>Análisis de Permanencia</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <label style={{ margin: 0 }}>Análisis de Permanencia</label>
+                  <button 
+                    className="secondary" 
+                    style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                    onClick={() => setData(prev => ({ ...prev, analisisPermanencia: suggestedAnalisis }))}
+                    title="Generar análisis automático basado en los números de matrícula"
+                  >
+                    <RefreshCw size={12} /> Auto-generar
+                  </button>
+                </div>
                 <textarea 
                   name="analisisPermanencia" 
                   value={data.analisisPermanencia} 
                   onChange={handleChange}
                   placeholder="Breve comentario sobre si la matrícula se mantiene estable o si hay fuga..."
+                  style={{ minHeight: '100px' }}
                 />
               </div>
             </div>
@@ -1041,10 +1209,14 @@ export default function App() {
                     {(data.licencias || [])
                       .filter(l => l.nombre.toLowerCase().includes(searchTermLicencias.toLowerCase()))
                       .map(l => (
-                      <tr key={l.id} style={{ opacity: l.retirado ? 0.5 : 1, background: l.retirado ? 'rgba(239, 68, 68, 0.05)' : 'transparent' }}>
+                      <tr key={l.id} style={{ opacity: (l.retirado || retiredStudentsMap.has(l.nombre)) ? 0.5 : 1, background: (l.retirado || retiredStudentsMap.has(l.nombre)) ? 'rgba(239, 68, 68, 0.05)' : 'transparent' }}>
                         <td>
                           {l.nombre}
-                          {l.retirado && <span style={{ marginLeft: '0.5rem', color: 'var(--red)', fontSize: '0.75rem', fontWeight: 'bold' }}>(RETIRADO)</span>}
+                          {(l.retirado || retiredStudentsMap.has(l.nombre)) && (
+                            <span style={{ marginLeft: '0.5rem', color: 'var(--red)', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                              (RETIRADO {retiredStudentsMap.get(l.nombre) ? `- ${retiredStudentsMap.get(l.nombre)}` : ''})
+                            </span>
+                          )}
                         </td>
                         <td>{l.curso || '-'}</td>
                         <td>
@@ -1435,10 +1607,14 @@ export default function App() {
                         return matchesSearch && matchesCritico;
                       })
                       .map(a => (
-                      <tr key={a.id} style={{ opacity: a.retirado ? 0.5 : 1, background: a.retirado ? 'rgba(239, 68, 68, 0.05)' : 'transparent' }}>
+                      <tr key={a.id} style={{ opacity: (a.retirado || retiredStudentsMap.has(a.nombre)) ? 0.5 : 1, background: (a.retirado || retiredStudentsMap.has(a.nombre)) ? 'rgba(239, 68, 68, 0.05)' : 'transparent' }}>
                         <td>
                           {a.nombre}
-                          {a.retirado && <span style={{ marginLeft: '0.5rem', color: 'var(--red)', fontSize: '0.75rem', fontWeight: 'bold' }}>(RETIRADO {a.fechaRetiro ? `- ${a.fechaRetiro}` : ''})</span>}
+                          {(a.retirado || retiredStudentsMap.has(a.nombre)) && (
+                            <span style={{ marginLeft: '0.5rem', color: 'var(--red)', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                              (RETIRADO {retiredStudentsMap.get(a.nombre) || a.fechaRetiro ? `- ${retiredStudentsMap.get(a.nombre) || a.fechaRetiro}` : ''})
+                            </span>
+                          )}
                         </td>
                         <td>{a.curso || '-'}</td>
                         <td>{a.asistenciaMes}%</td>
@@ -1490,189 +1666,343 @@ export default function App() {
           </div>
         </div>
       )}
+      {subTab === 'config' && (
+        <div className="animate-fade-in">
+          <div className="card">
+            <h2>Configuración del Sistema</h2>
+            <div className="grid-2" style={{ marginTop: '1.5rem' }}>
+              <div className="card" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Estado de Conexión</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                  <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: offlineMode ? 'var(--red)' : 'var(--green)' }}></div>
+                  <span>{offlineMode ? 'Modo Offline (Local)' : 'Conectado a Firebase (Nube)'}</span>
+                </div>
+                {offlineMode ? (
+                  <button className="secondary" onClick={retryConnection}>
+                    Intentar Reconectar
+                  </button>
+                ) : (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    Los datos se están sincronizando automáticamente con el servidor en tiempo real.
+                  </p>
+                )}
+              </div>
+
+              <div className="card" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Resumen de Registros</h3>
+                <div style={{ fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Reportes Mensuales:</span>
+                    <strong>{reportesList.length}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Mes Actual:</span>
+                    <strong>{data.periodo || 'Sin asignar'}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Estudiantes en Alerta (Mes):</span>
+                    <strong>{data.alertas.length}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="card" style={{ marginTop: '1.5rem', border: '1px solid var(--border-danger, rgba(239, 68, 68, 0.2))', background: 'rgba(239, 68, 68, 0.02)' }}>
+              <h3 style={{ color: 'var(--red)', fontSize: '1rem' }}>Zona Crítica</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                Acciones administrativas que afectan la base de datos local y remota.
+              </p>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button className="secondary" onClick={() => {
+                  if (window.confirm('¿Desea limpiar el cache local? Esto reiniciará la sesión.')) {
+                    localStorage.removeItem('lastSelectedReportId');
+                    window.location.reload();
+                  }
+                }}>
+                  Limpiar Cache Local
+                </button>
+                <button className="danger" onClick={() => {
+                   if (window.confirm('ATENCIÓN: ¿Está seguro de que desea eliminar TODO el historial de este mes? Esta acción no se puede deshacer.')) {
+                     const resetData = { ...defaultData, periodo: data.periodo };
+                     setData(resetData);
+                     saveToFirebase(resetData, currentId);
+                     alert('Datos del mes reseteados con éxito.');
+                   }
+                }}>
+                  Resetear Datos del Mes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', gap: '1rem' }}>
-             <button className="secondary" onClick={clearData}>Limpiar Datos</button>
-             <button className="primary" onClick={() => setActiveTab('reporte')}>
+             <button 
+               className="secondary" 
+               onClick={() => {
+                 saveToFirebase(data, currentId);
+                 setActiveTab('reporte');
+               }}
+             >
                <FileText size={18} /> Generar Reporte
+             </button>
+             <button 
+               className="primary" 
+               onClick={() => saveToFirebase(data, currentId)}
+               disabled={saveStatus === 'saving'}
+             >
+               {saveStatus === 'saving' ? 'Guardando...' : 'Guardar Cambios'}
              </button>
           </div>
         </div>
       )}
 
-      {activeTab === 'reporte' && (
-        <div className="animate-fade-in" id="printable-report">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-            <div>
-              <h1 style={{ marginBottom: '0.25rem', fontSize: '2rem' }}>Reporte Mensual: Inspectoría General</h1>
-              <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Dirección CEIA Juanita Zúñiga Fuentes</p>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <button className="primary no-print" onClick={printReport}>
-                <Printer size={18} /> Imprimir Reporte
-              </button>
-              <div style={{ marginTop: '1rem', fontWeight: 600 }}>Periodo: {data.periodo || '[No especificado]'}</div>
-            </div>
-          </div>
+      {activeTab === 'reporte' && (() => {
+        const alertasFiltradasReporte = (data.alertas || []).filter(a => {
+          const cumple50 = reportFilterUnder50 ? (Number(a.asistenciaAcum) < 50 || Number(a.asistenciaMes) < 50) : true;
+          const cumpleDerivacion = reportFilterDerivacion ? (a.accion && a.accion.toLowerCase().includes('deriv')) : true;
+          return cumple50 && cumpleDerivacion;
+        });
 
-          <div className="card">
-            <h2>1. Tablero de Control de Metas (Eficiencia Interna)</h2>
-            <div className="grid-3" style={{ marginTop: '1.5rem' }}>
-              
-              {/* Matrícula */}
-              <div className="metric-card">
-                <div className="metric-title">Matrícula Final (Mes)</div>
-                <div className={`metric-value ${((Number(data.matriculaTotal) || 0) + (Number(data.nuevasIncorporaciones) || 0) - (Number(data.retirosEfectivos) || 0)) >= 136 ? 'status-green' : 'status-red'}`}>
-                  {(Number(data.matriculaTotal) || 0) + (Number(data.nuevasIncorporaciones) || 0) - (Number(data.retirosEfectivos) || 0)}
-                </div>
-                <div className="metric-meta">
-                  Meta ≥ 136 | 
-                  {((Number(data.matriculaTotal) || 0) + (Number(data.nuevasIncorporaciones) || 0) - (Number(data.retirosEfectivos) || 0)) >= 136 ? 
-                    <><CheckCircle size={14} className="status-green" /> Cumple</> : 
-                    <><AlertTriangle size={14} className="status-red" /> Riesgo</>
-                  }
-                </div>
+        return (
+          <div className="animate-fade-in" id="printable-report">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <div>
+                <h1 style={{ marginBottom: '0.25rem', fontSize: '2rem' }}>Reporte Mensual: Inspectoría General</h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Dirección CEIA Juanita Zúñiga Fuentes</p>
               </div>
-
-              {/* Asistencia */}
-              <div className="metric-card">
-                <div className="metric-title">Asistencia Promedio</div>
-                <div className={`metric-value ${data.asistenciaPromedio >= 60 ? 'status-green' : (data.asistenciaPromedio >= 55 ? 'status-yellow' : 'status-red')}`}>
-                  {data.asistenciaPromedio}%
-                </div>
-                <div className="metric-meta">
-                  Meta ≥ 60% | 
-                  {data.asistenciaPromedio >= 60 ? <><CheckCircle size={14} className="status-green" /> Cumple</> : 
-                   data.asistenciaPromedio >= 55 ? <><Info size={14} className="status-yellow" /> Alerta</> :
-                   <><AlertTriangle size={14} className="status-red" /> Riesgo</>}
-                </div>
+              <div style={{ textAlign: 'right' }}>
+                <button className="primary no-print" onClick={printReport}>
+                  <Printer size={18} /> Imprimir Reporte
+                </button>
+                <div style={{ marginTop: '1rem', fontWeight: 600 }}>Periodo: {data.periodo || '[No especificado]'}</div>
               </div>
-
-              {/* Riesgo Repitencia */}
-              <div className="metric-card">
-                <div className="metric-title">Riesgo Repitencia</div>
-                <div className={`metric-value ${data.riesgoRepitencia < 10 ? 'status-green' : (data.riesgoRepitencia <= 15 ? 'status-yellow' : 'status-red')}`}>
-                  {data.riesgoRepitencia}%
-                </div>
-                <div className="metric-meta">
-                  Meta &lt; 10% | 
-                  {data.riesgoRepitencia < 10 ? <><CheckCircle size={14} className="status-green" /> Cumple</> : 
-                   data.riesgoRepitencia <= 15 ? <><Info size={14} className="status-yellow" /> Alerta</> :
-                   <><AlertTriangle size={14} className="status-red" /> Riesgo</>}
-                </div>
-              </div>
-
             </div>
-          </div>
 
-          <div className="grid-2">
+            {/* Barra de Filtros (no-print) */}
+            <div className="no-print card" style={{ 
+              background: 'var(--bg-card)', 
+              border: '1.5px solid var(--border)', 
+              borderRadius: '16px', 
+              padding: '1.25rem', 
+              marginBottom: '1.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                🔍 Opciones de Filtrado para Impresión
+              </h3>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                Filtra la nómina de estudiantes en alerta antes de imprimir o guardar como PDF. Los filtros se aplicarán de forma instantánea.
+              </p>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+                <button 
+                  className={`secondary ${reportFilterUnder50 ? 'active' : ''}`}
+                  style={{ 
+                    borderRadius: '20px', 
+                    padding: '0.4rem 1rem', 
+                    fontSize: '0.85rem',
+                    borderColor: reportFilterUnder50 ? 'var(--primary)' : 'var(--border)',
+                    background: reportFilterUnder50 ? 'var(--primary-glow)' : 'transparent',
+                    color: reportFilterUnder50 ? '#fff' : 'var(--text-secondary)'
+                  }}
+                  onClick={() => setReportFilterUnder50(!reportFilterUnder50)}
+                >
+                  📉 Asistencia &lt; 50%
+                </button>
+                <button 
+                  className={`secondary ${reportFilterDerivacion ? 'active' : ''}`}
+                  style={{ 
+                    borderRadius: '20px', 
+                    padding: '0.4rem 1rem', 
+                    fontSize: '0.85rem',
+                    borderColor: reportFilterDerivacion ? 'var(--primary)' : 'var(--border)',
+                    background: reportFilterDerivacion ? 'var(--primary-glow)' : 'transparent',
+                    color: reportFilterDerivacion ? '#fff' : 'var(--text-secondary)'
+                  }}
+                  onClick={() => setReportFilterDerivacion(!reportFilterDerivacion)}
+                >
+                  📁 Sólo Derivaciones
+                </button>
+                {(reportFilterUnder50 || reportFilterDerivacion) && (
+                  <button 
+                    className="danger" 
+                    style={{ 
+                      borderRadius: '20px', 
+                      padding: '0.4rem 1rem', 
+                      fontSize: '0.85rem' 
+                    }}
+                    onClick={() => {
+                      setReportFilterUnder50(false);
+                      setReportFilterDerivacion(false);
+                    }}
+                  >
+                    🔄 Limpiar Filtros
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="card">
-              <h2>2. Gestión de Altas y Bajas</h2>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>Movimientos de matrícula del mes (Evidencia Meta 13).</p>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--border)' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><UserPlus size={16} className="status-green" /> Nuevas Incorporaciones:</span>
-                  <strong>{data.nuevasIncorporaciones}</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--border)' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><UserMinus size={16} className="status-red" /> Retiros Efectivos:</span>
-                  <strong>{data.retirosEfectivos}</strong>
-                </div>
+              <h2>1. Tablero de Control de Metas (Eficiencia Interna)</h2>
+              <div className="grid-3" style={{ marginTop: '1.5rem' }}>
                 
-                <div style={{ marginTop: '0.5rem' }}>
-                  <h3 style={{ fontSize: '1rem' }}>Análisis de Permanencia:</h3>
-                  <p style={{ 
-                    padding: '1rem', 
-                    background: 'rgba(255,255,255,0.03)', 
-                    borderRadius: '8px',
-                    whiteSpace: 'pre-wrap'
-                  }}>
-                    {data.analisisPermanencia || 'Sin observaciones registradas.'}
-                  </p>
+                {/* Matrícula */}
+                <div className="metric-card">
+                  <div className="metric-title">Matrícula Final (Mes)</div>
+                  <div className={`metric-value ${matriculaFinal >= 136 ? 'status-green' : 'status-red'}`}>
+                    {matriculaFinal}
+                  </div>
+                  <div className="metric-meta">
+                    Meta ≥ 136 | 
+                    {matriculaFinal >= 136 ? 
+                      <><CheckCircle size={14} className="status-green" /> Cumple</> : 
+                      <><AlertTriangle size={14} className="status-red" /> Riesgo</>
+                    }
+                  </div>
+                </div>
+
+                {/* Asistencia */}
+                <div className="metric-card">
+                  <div className="metric-title">Asistencia Promedio</div>
+                  <div className={`metric-value ${data.asistenciaPromedio >= 60 ? 'status-green' : (data.asistenciaPromedio >= 55 ? 'status-yellow' : 'status-red')}`}>
+                    {data.asistenciaPromedio}%
+                  </div>
+                  <div className="metric-meta">
+                    Meta ≥ 60% | 
+                    {data.asistenciaPromedio >= 60 ? <><CheckCircle size={14} className="status-green" /> Cumple</> : 
+                     data.asistenciaPromedio >= 55 ? <><Info size={14} className="status-yellow" /> Alerta</> :
+                     <><AlertTriangle size={14} className="status-red" /> Riesgo</>}
+                  </div>
+                </div>
+
+                {/* Riesgo Repitencia */}
+                <div className="metric-card">
+                  <div className="metric-title">Riesgo Repitencia</div>
+                  <div className={`metric-value ${data.riesgoRepitencia < 10 ? 'status-green' : (data.riesgoRepitencia <= 15 ? 'status-yellow' : 'status-red')}`}>
+                    {data.riesgoRepitencia}%
+                  </div>
+                  <div className="metric-meta">
+                    Meta &lt; 10% | 
+                    {data.riesgoRepitencia < 10 ? <><CheckCircle size={14} className="status-green" /> Cumple</> : 
+                     data.riesgoRepitencia <= 15 ? <><Info size={14} className="status-yellow" /> Alerta</> :
+                     <><AlertTriangle size={14} className="status-red" /> Riesgo</>}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div className="grid-2">
+              <div className="card">
+                <h2>2. Gestión de Altas y Bajas</h2>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>Movimientos de matrícula del mes (Evidencia Meta 13).</p>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--border)' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><UserPlus size={16} className="status-green" /> Nuevas Incorporaciones:</span>
+                    <strong>{data.nuevasIncorporaciones}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--border)' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><UserMinus size={16} className="status-red" /> Retiros Efectivos:</span>
+                    <strong>{data.retirosEfectivos}</strong>
+                  </div>
+                  
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <h3 style={{ fontSize: '1rem' }}>Análisis de Permanencia:</h3>
+                    <p style={{ 
+                      padding: '1rem', 
+                      background: 'rgba(255,255,255,0.03)', 
+                      borderRadius: '8px',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {data.analisisPermanencia || 'Sin observaciones registradas.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card">
+                <h2>4. Respaldo "Supuestos Básicos"</h2>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                  Resumen de Casos Justificados. Importante: Cada caso debe tener respaldo en la Carpeta Crítica.
+                </p>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--border)' }}>
+                    <span>Deserciones documentadas:</span>
+                    <strong>{data.casosDeserciones}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--border)' }}>
+                    <span>Licencias Médicas/Salud:</span>
+                    <strong>{data.casosLicencias}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--border)' }}>
+                    <span>Cambios de Domicilio/Laborales:</span>
+                    <strong>{data.casosCambios}</strong>
+                  </div>
+                  
+                  <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '8px' }}>
+                    <strong style={{ color: 'var(--warning)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <AlertTriangle size={16} /> Nota para Inspectoría
+                    </strong>
+                    <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                      Si la meta no se cumple, el Director invocará la cláusula de eximente con estos {Number(data.casosDeserciones) + Number(data.casosLicencias) + Number(data.casosCambios)} casos presentados.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="card">
-              <h2>4. Respaldo "Supuestos Básicos"</h2>
+              <h2>3. Alerta Temprana de Repitencia</h2>
               <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-                Resumen de Casos Justificados. Importante: Cada caso debe tener respaldo en la Carpeta Crítica.
+                Nómina de estudiantes por debajo del umbral de asistencia (Evidencia Meta 14).
               </p>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--border)' }}>
-                  <span>Deserciones documentadas:</span>
-                  <strong>{data.casosDeserciones}</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--border)' }}>
-                  <span>Licencias Médicas/Salud:</span>
-                  <strong>{data.casosLicencias}</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--border)' }}>
-                  <span>Cambios de Domicilio/Laborales:</span>
-                  <strong>{data.casosCambios}</strong>
-                </div>
-                
-                <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '8px' }}>
-                  <strong style={{ color: 'var(--warning)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <AlertTriangle size={16} /> Nota para Inspectoría
-                  </strong>
-                  <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                    Si la meta no se cumple, el Director invocará la cláusula de eximente con estos {Number(data.casosDeserciones) + Number(data.casosLicencias) + Number(data.casosCambios)} casos presentados.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="card">
-            <h2>3. Alerta Temprana de Repitencia</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-              Nómina de estudiantes por debajo del umbral de asistencia (Evidencia Meta 14).
-            </p>
-            
-            {data.alertas.length > 0 ? (
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Nombre del Estudiante</th>
-                      <th>Curso</th>
-                      <th>% Asistencia Mes</th>
-                      <th>% Asistencia Acumulada</th>
-                      <th>Acción Realizada (Derivación)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.alertas.map(a => (
-                      <tr key={a.id}>
-                        <td style={{ fontWeight: 500 }}>{a.nombre}</td>
-                        <td>{a.curso || '-'}</td>
-                        <td>{a.asistenciaMes}%</td>
-                        <td>{a.asistenciaAcum}%</td>
-                        <td>
-                          <span style={{ 
-                            padding: '0.25rem 0.5rem', 
-                            background: 'rgba(59, 130, 246, 0.1)', 
-                            color: 'var(--primary)',
-                            borderRadius: '4px',
-                            fontSize: '0.85rem'
-                          }}>
-                            {a.accion}
-                          </span>
-                        </td>
+              {alertasFiltradasReporte.length > 0 ? (
+                <div className="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Nombre del Estudiante</th>
+                        <th>Curso</th>
+                        <th>% Asistencia Mes</th>
+                        <th>% Asistencia Acumulada</th>
+                        <th>Acción Realizada (Derivación)</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p style={{ padding: '1rem', textAlign: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-                No se registraron estudiantes en riesgo para este periodo.
-              </p>
-            )}
-          </div>
+                    </thead>
+                    <tbody>
+                      {alertasFiltradasReporte.map(a => (
+                        <tr key={a.id}>
+                          <td style={{ fontWeight: 500 }}>{a.nombre}</td>
+                          <td>{a.curso || '-'}</td>
+                          <td>{a.asistenciaMes}%</td>
+                          <td>{a.asistenciaAcum}%</td>
+                          <td>
+                            <span style={{ 
+                              padding: '0.25rem 0.5rem', 
+                              background: 'rgba(59, 130, 246, 0.1)', 
+                              color: 'var(--primary)',
+                              borderRadius: '4px',
+                              fontSize: '0.85rem'
+                            }}>
+                              {a.accion}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p style={{ padding: '1rem', textAlign: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                  No se registraron estudiantes que cumplan con los criterios de filtrado seleccionados.
+                </p>
+              )}
+            </div>
 
           <div className="card">
             <h2>5. Expediente de Licencias Médicas</h2>
@@ -1720,110 +2050,249 @@ export default function App() {
               {data.observaciones || 'No hay requerimientos adicionales para este periodo.'}
             </p>
           </div>
-
         </div>
-      )}
+      );
+    })()}
 
-      {activeTab === 'expediente' && (
-        <div className="animate-fade-in" id="printable-report">
-          <div className="no-print card" style={{ marginBottom: '2rem' }}>
-            <h2>Buscar Expediente de Estudiante</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>
-              Busca un alumno por nombre para generar su reporte histórico de alertas y licencias.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <input 
-                type="text" 
-                list="nombres-list"
-                placeholder="Nombre del estudiante..." 
-                value={selectedStudentForReport}
-                onChange={e => setSelectedStudentForReport(e.target.value)}
-                style={{ flex: 1, minWidth: '250px' }}
-              />
-              {selectedStudentForReport && (
-                <button className="primary" onClick={printReport}>
-                  <Printer size={18} /> Imprimir Expediente
-                </button>
-              )}
-            </div>
-          </div>
+      {activeTab === 'expediente' && (() => {
+        const periodosAgrupadosFiltrados = periodosAgrupados.map(p => {
+          const alertasFiltradas = p.alertas.filter(a => {
+            const cumple50 = expedienteFilterUnder50 ? (Number(a.asistenciaAcum) < 50 || Number(a.asistenciaMes) < 50) : true;
+            const cumpleDerivacion = expedienteFilterDerivacion ? (a.accion && a.accion.toLowerCase().includes('deriv')) : true;
+            return cumple50 && cumpleDerivacion;
+          });
+          return { ...p, alertas: alertasFiltradas };
+        }).filter(p => p.alertas.length > 0 || p.licencias.length > 0);
 
-          {periodosAgrupados.length > 0 && selectedStudentForReport && (
-            <div className="card" style={{ background: '#fff', color: '#000' }}>
-              <div style={{ textAlign: 'center', marginBottom: '3rem', borderBottom: '2px solid #eee', paddingBottom: '1.5rem' }}>
-                <h1 style={{ color: '#000', marginBottom: '0.5rem', fontSize: '2rem' }}>EXPEDIENTE DE ACTUACIONES</h1>
-                <h2 style={{ color: '#1e293b', fontSize: '1.5rem', fontWeight: 600 }}>ALUMNO(A): {selectedStudentForReport.toUpperCase()}</h2>
-                <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Inspectoría General - CEIA Juanita Zúñiga Fuentes</p>
+        return (
+          <div className="animate-fade-in" id="printable-report">
+            <div className="no-print card" style={{ marginBottom: '2rem' }}>
+              <h2>Buscar Expediente de Estudiante</h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                Busca un alumno por nombre para generar su reporte histórico de alertas y licencias.
+              </p>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <input 
+                  type="text" 
+                  list="nombres-list"
+                  placeholder="Nombre del estudiante..." 
+                  value={selectedStudentForReport}
+                  onChange={e => setSelectedStudentForReport(e.target.value)}
+                  style={{ flex: 1, minWidth: '250px' }}
+                />
+                {selectedStudentForReport && periodosAgrupadosFiltrados.length > 0 && (
+                  <button className="primary" onClick={printReport}>
+                    <Printer size={18} /> Imprimir Expediente
+                  </button>
+                )}
               </div>
+            </div>
 
-              {periodosAgrupados.map((p, index) => (
-                <div key={index} style={{ marginBottom: '2.5rem', borderLeft: '4px solid #3b82f6', paddingLeft: '1.5rem' }}>
-                  <h3 style={{ color: '#0f172a', fontSize: '1.25rem', marginBottom: '1rem', display: 'inline-block', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.25rem' }}>
-                    Mes de Registro: {p.periodo.toUpperCase()}
+            {selectedStudentForReport && (
+              <>
+                {/* Barra de Filtros (no-print) */}
+                <div className="no-print card" style={{ 
+                  background: 'var(--bg-card)', 
+                  border: '1.5px solid var(--border)', 
+                  borderRadius: '16px', 
+                  padding: '1.25rem', 
+                  marginBottom: '1.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem'
+                }}>
+                  <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    🔍 Opciones de Filtrado para Impresión
                   </h3>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    Filtra el historial de alertas de este alumno antes de imprimir. Los filtros se aplicarán de forma instantánea.
+                  </p>
+                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+                    <button 
+                      className={`secondary ${expedienteFilterUnder50 ? 'active' : ''}`}
+                      style={{ 
+                        borderRadius: '20px', 
+                        padding: '0.4rem 1rem', 
+                        fontSize: '0.85rem',
+                        borderColor: expedienteFilterUnder50 ? 'var(--primary)' : 'var(--border)',
+                        background: expedienteFilterUnder50 ? 'var(--primary-glow)' : 'transparent',
+                        color: expedienteFilterUnder50 ? '#fff' : 'var(--text-secondary)'
+                      }}
+                      onClick={() => setExpedienteFilterUnder50(!expedienteFilterUnder50)}
+                    >
+                      📉 Asistencia &lt; 50%
+                    </button>
+                    <button 
+                      className={`secondary ${expedienteFilterDerivacion ? 'active' : ''}`}
+                      style={{ 
+                        borderRadius: '20px', 
+                        padding: '0.4rem 1rem', 
+                        fontSize: '0.85rem',
+                        borderColor: expedienteFilterDerivacion ? 'var(--primary)' : 'var(--border)',
+                        background: expedienteFilterDerivacion ? 'var(--primary-glow)' : 'transparent',
+                        color: expedienteFilterDerivacion ? '#fff' : 'var(--text-secondary)'
+                      }}
+                      onClick={() => setExpedienteFilterDerivacion(!expedienteFilterDerivacion)}
+                    >
+                      📁 Sólo Derivaciones
+                    </button>
+                    {(expedienteFilterUnder50 || expedienteFilterDerivacion) && (
+                      <button 
+                        className="danger" 
+                        style={{ 
+                          borderRadius: '20px', 
+                          padding: '0.4rem 1rem', 
+                          fontSize: '0.85rem' 
+                        }}
+                        onClick={() => {
+                          setExpedienteFilterUnder50(false);
+                          setExpedienteFilterDerivacion(false);
+                        }}
+                      >
+                        🔄 Limpiar Filtros
+                      </button>
+                    )}
+                  </div>
+                </div>
 
-                  {p.alertas.length > 0 && (
-                    <div style={{ marginBottom: '1.5rem' }}>
-                      <h4 style={{ color: '#334155', marginBottom: '0.5rem', fontSize: '1rem' }}>⚠️ Acciones y Alertas de Repitencia</h4>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', color: '#0f172a', fontSize: '0.9rem' }}>
-                        <thead>
-                          <tr style={{ background: '#f8fafc' }}>
-                            <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '20%' }}>Curso</th>
-                            <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'center', width: '15%' }}>% Asistencia</th>
-                            <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left' }}>Acción / Medida Tomada</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {p.alertas.map((a, i) => (
-                            <tr key={i}>
-                              <td style={{ border: '1px solid #cbd5e1', padding: '10px' }}>{a.curso}</td>
-                              <td style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'center' }}>{a.asistenciaAcum}%</td>
-                              <td style={{ border: '1px solid #cbd5e1', padding: '10px', fontWeight: 600 }}>{a.accion}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                {periodosAgrupadosFiltrados.length > 0 ? (
+                  <div className="card" style={{ background: '#fff', color: '#000' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1.5rem' }}>
+                      <h1 style={{ color: '#000', marginBottom: '0.5rem', fontSize: '2rem' }}>EXPEDIENTE DE ACTUACIONES</h1>
+                      <h2 style={{ color: '#1e293b', fontSize: '1.5rem', fontWeight: 600 }}>ALUMNO(A): {selectedStudentForReport.toUpperCase()}</h2>
+                      <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Inspectoría General - CEIA Juanita Zúñiga Fuentes</p>
                     </div>
-                  )}
 
-                  {p.licencias.length > 0 && (
-                    <div style={{ marginBottom: '1.5rem' }}>
-                      <h4 style={{ color: '#334155', marginBottom: '0.5rem', fontSize: '1rem' }}>🩺 Justificaciones (Licencias Médicas)</h4>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', color: '#0f172a', fontSize: '0.9rem' }}>
-                        <thead>
-                          <tr style={{ background: '#f8fafc' }}>
-                            <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '20%' }}>Curso</th>
-                            <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left' }}>Días Justificados</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {p.licencias.map((l, i) => (
-                            <tr key={i}>
-                              <td style={{ border: '1px solid #cbd5e1', padding: '10px' }}>{l.curso}</td>
-                              <td style={{ border: '1px solid #cbd5e1', padding: '10px', fontWeight: 600 }}>{l.diasJustificados} días</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    {/* DASHBOARD VISUAL DE TENDENCIAS */}
+                    <div className="no-print" style={{ marginBottom: '3rem', padding: '1.5rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                      <h3 style={{ color: '#0f172a', fontSize: '1.1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <TrendingUp size={20} className="status-green" /> Análisis de Evolución Mensual
+                      </h3>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                        <div style={{ padding: '1rem', background: '#fff', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                          <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '0.25rem' }}>Asistencia Promedio</div>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
+                            {periodosAgrupadosFiltrados.length > 0 
+                              ? Math.round(periodosAgrupadosFiltrados.reduce((acc, p) => acc + (p.alertas[0]?.asistenciaAcum || 0), 0) / periodosAgrupadosFiltrados.length)
+                              : 0}%
+                          </div>
+                        </div>
+                        <div style={{ padding: '1rem', background: '#fff', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                          <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '0.25rem' }}>Alertas Registradas</div>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
+                            {periodosAgrupadosFiltrados.reduce((acc, p) => acc + p.alertas.length, 0)}
+                          </div>
+                        </div>
+                        <div style={{ padding: '1rem', background: '#fff', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                          <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '0.25rem' }}>Licencias/Justificativos</div>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
+                            {periodosAgrupadosFiltrados.reduce((acc, p) => acc + p.licencias.length, 0)}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '1rem', padding: '1rem 0', borderBottom: '2px solid #e2e8f0' }}>
+                        {periodosAgrupadosFiltrados.map((p, i) => {
+                          const asist = p.alertas[0]?.asistenciaAcum || 0;
+                          return (
+                            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', minWidth: '60px' }}>
+                              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: asist < 60 ? '#ef4444' : '#10b981' }}>{asist}%</div>
+                              <div style={{ 
+                                width: '100%', 
+                                height: `${asist}%`, 
+                                background: asist < 60 ? 'linear-gradient(to top, #fee2e2, #ef4444)' : 'linear-gradient(to top, #d1fae5, #10b981)',
+                                borderRadius: '4px 4px 0 0',
+                                transition: 'height 0.5s ease'
+                              }}></div>
+                              <div style={{ fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textAlign: 'center' }}>
+                                {p.periodo.split(' ')[0]}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))}
 
-              <div style={{ marginTop: '4rem', display: 'flex', justifyContent: 'space-around', color: '#0f172a' }}>
-                <div style={{ textAlign: 'center', width: '200px' }}>
-                  <div style={{ borderBottom: '1px solid #0f172a', height: '40px' }}></div>
-                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Firma Inspector(a) General</p>
-                </div>
-                <div style={{ textAlign: 'center', width: '200px' }}>
-                  <div style={{ borderBottom: '1px solid #0f172a', height: '40px' }}></div>
-                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Firma Director(a) / Timbre</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+                    {periodosAgrupadosFiltrados.map((p, index) => (
+                      <div key={index} style={{ marginBottom: '2.5rem', borderLeft: '4px solid #3b82f6', paddingLeft: '1.5rem' }}>
+                        <h3 style={{ color: '#0f172a', fontSize: '1.25rem', marginBottom: '1rem', display: 'inline-block', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.25rem' }}>
+                          Mes de Registro: {p.periodo.toUpperCase()}
+                        </h3>
+
+                        {p.alertas.length > 0 && (
+                          <div style={{ marginBottom: '1.5rem' }}>
+                            <h4 style={{ color: '#334155', marginBottom: '0.5rem', fontSize: '1rem' }}>⚠️ Acciones y Alertas de Repitencia</h4>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#0f172a', fontSize: '0.9rem' }}>
+                              <thead>
+                                <tr style={{ background: '#f8fafc' }}>
+                                  <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '20%' }}>Curso</th>
+                                  <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'center', width: '15%' }}>% Asistencia</th>
+                                  <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left' }}>Acción / Medida Tomada</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {p.alertas.map((a, i) => (
+                                  <tr key={i}>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '10px' }}>{a.curso}</td>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'center' }}>{a.asistenciaAcum}%</td>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '10px', fontWeight: 600 }}>{a.accion}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+
+                        {p.licencias.length > 0 && (
+                          <div style={{ marginBottom: '1.5rem' }}>
+                            <h4 style={{ color: '#334155', marginBottom: '0.5rem', fontSize: '1rem' }}>🩺 Justificaciones (Licencias Médicas)</h4>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#0f172a', fontSize: '0.9rem' }}>
+                              <thead>
+                                <tr style={{ background: '#f8fafc' }}>
+                                  <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left', width: '20%' }}>Curso</th>
+                                  <th style={{ border: '1px solid #cbd5e1', padding: '10px', textAlign: 'left' }}>Días Justificados</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {p.licencias.map((l, i) => (
+                                  <tr key={i}>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '10px' }}>{l.curso}</td>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '10px', fontWeight: 600 }}>{l.diasJustificados} días</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                    <div style={{ marginTop: '4rem', display: 'flex', justifyContent: 'space-around', color: '#0f172a' }}>
+                      <div style={{ textAlign: 'center', width: '200px' }}>
+                        <div style={{ borderBottom: '1px solid #0f172a', height: '40px' }}></div>
+                        <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Firma Inspector(a) General</p>
+                      </div>
+                      <div style={{ textAlign: 'center', width: '200px' }}>
+                        <div style={{ borderBottom: '1px solid #0f172a', height: '40px' }}></div>
+                        <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>Firma Director(a) / Timbre</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                    <AlertTriangle size={48} style={{ color: 'var(--warning)', marginBottom: '1rem' }} />
+                    <h3>Sin registros coincidentes</h3>
+                    <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0.5rem auto 0 auto' }}>
+                      No se encontraron registros de alertas o justificaciones para este estudiante que coincidan con los filtros de búsqueda y asistencia seleccionados.
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
