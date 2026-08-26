@@ -142,10 +142,23 @@ export default function App() {
   const retiredStudentsMap = useMemo(() => {
     const map = new Map();
     if (!alumnosData) return map;
+
+    // 1. Un alumno puede aparecer en mas de un curso (ej: traslado de especialidad).
+    //    Si esta ACTIVO en cualquier curso, no debe marcarse como retirado.
+    const activos = new Set();
     alumnosData.forEach(c => {
       if (c.alumnos) {
         c.alumnos.forEach(a => {
-          if (a.retirado) {
+          if (a.nombre && !a.retirado) activos.add(a.nombre);
+        });
+      }
+    });
+
+    // 2. Solo se marca retirado quien NO esta activo en ningun curso.
+    alumnosData.forEach(c => {
+      if (c.alumnos) {
+        c.alumnos.forEach(a => {
+          if (a.retirado && a.nombre && !activos.has(a.nombre)) {
             map.set(a.nombre, a.fechaRetiro);
           }
         });
