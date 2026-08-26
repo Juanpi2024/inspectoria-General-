@@ -159,11 +159,19 @@ export default function App() {
     });
 
     // 2. Solo se marca retirado quien NO esta activo en ningun curso.
+    //    Si tiene retiros en varios cursos, vale el MAS RECIENTE: esa es la
+    //    fecha en que efectivamente dejo el establecimiento.
+    const aFecha = (f) => {
+      const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(f || ''));
+      return m ? new Date(`${m[3]}-${m[2]}-${m[1]}`).getTime() : 0;
+    };
     alumnosData.forEach(c => {
       if (c.alumnos) {
         c.alumnos.forEach(a => {
           if (a.retirado && a.nombre && !activos.has(a.nombre)) {
-            map.set(a.nombre, a.fechaRetiro);
+            if (!map.has(a.nombre) || aFecha(a.fechaRetiro) > aFecha(map.get(a.nombre))) {
+              map.set(a.nombre, a.fechaRetiro);
+            }
           }
         });
       }

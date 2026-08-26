@@ -1,3 +1,17 @@
+// ============================================================================
+//  OBSOLETO — NO EJECUTAR
+//
+//  Este script generaba alumnos_data.json leyendo los .docx de NOMINAS/.
+//  Desde agosto 2026 la nomina se construye desde SAAT (Reporte de Matricula
+//  + Reporte de Alumnos Retirados), que trae el RUN de cada alumno y las
+//  fechas de matricula y retiro reales.
+//
+//  Ejecutarlo SOBREESCRIBE alumnos_data.json y hace perder los RUN, las
+//  fechas y los 55 retiros vigentes, dejando la nomina como estaba en marzo.
+//
+//  Se conserva solo como referencia historica.
+// ============================================================================
+
 const mammoth = require("mammoth");
 const fs = require("fs");
 const path = require("path");

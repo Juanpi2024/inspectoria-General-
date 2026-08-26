@@ -3,69 +3,110 @@
     "curso": "7Y8",
     "alumnos": [
       {
-        "nombre": "FERNANDO AGUERO AYALA",
+        "nombre": "ALEJANDRA CATRILEO CARO",
+        "run": "22.909.239",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "CARLOS AGUILERA TORRES",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JONATHAN ARIAS MUNOZ",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
       },
       {
         "nombre": "BENJAMIN CANCINO CASTILLO",
-        "retirado": false,
-        "fechaRetiro": null
+        "run": "23.169.088",
+        "retirado": true,
+        "fechaRetiro": "14/07/2026",
+        "fechaMatricula": "01/03/2026"
       },
       {
-        "nombre": "ALEJANDRA CATRILEO CARO",
+        "nombre": "CARLOS AGUILERA TORRES",
+        "run": "23.565.209",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "NAYARET HERNANDEZ CONTRERAS",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "FLORENCIA MAUREIRA CONTRERAS",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "SEBASTIAN MUNOZ MARTINEZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JUAN PEREZ JIMENEZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "ESTEBAN SANCHEZ CANCINO",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
       },
       {
         "nombre": "DANIEL VALDES GUTIERREZ",
+        "run": "22.781.695",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "16/03/2026"
+      },
+      {
+        "nombre": "EFFY BASANTES MORENO",
+        "run": "100.749.262",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "25/03/2026"
+      },
+      {
+        "nombre": "ESTEBAN SANCHEZ CANCINO",
+        "run": "23.123.170",
+        "retirado": true,
+        "fechaRetiro": "13/07/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "FERNANDO AGUERO AYALA",
+        "run": "22.886.039",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "FLORENCIA MAUREIRA CONTRERAS",
+        "run": "23.542.950",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026",
+        "nombreSaat": "FLORENCIA MAURERIA CONTRERAS"
       },
       {
         "nombre": "IGNACIO VASQUEZ VILLAGRA",
+        "run": "23.225.892",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "JONATHAN ARIAS MUNOZ",
+        "run": "23.615.523",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "JUAN PEREZ JIMENEZ",
+        "run": "23.434.272",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "LEONEL BUTTO ROMERO",
+        "run": "100.739.168",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "07/07/2026"
       },
       {
         "nombre": "MAITE MUNOZ SEPULVEDA",
+        "run": "23.907.111",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "30/03/2026"
+      },
+      {
+        "nombre": "NAYARET HERNANDEZ CONTRERAS",
+        "run": "22.853.434",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "11/03/2026"
+      },
+      {
+        "nombre": "SEBASTIAN MUNOZ MARTINEZ",
+        "run": "23.405.745",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "16/03/2026"
       }
     ]
   },
@@ -73,169 +114,253 @@
     "curso": "1Y2 HC",
     "alumnos": [
       {
-        "nombre": "ALISON ALARCON TRONCOSO",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "CAMILA ARIAS VARGAS",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "GUEDITH BADILLA ESCALONA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JOSE CAMPOS ECHEVERRIA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "WILDO CHANDIA VASQUEZ",
-        "retirado": true,
-        "fechaRetiro": "30/03/2026"
-      },
-      {
-        "nombre": "ISIDORA CONSTANCIO GONZALEZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
         "nombre": "ALEXANDRA ESPINOZA CANALES",
+        "run": "22.326.053",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MARTIN ESPINOZA PAVEZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "DIEGO FRIZ ESPINOZA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MARIA GATICA VILLAGRA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JOAQUIN GONZALES CORDOVA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "BENJAMIN HERNANDEZ BUSTAMANTE",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "ERIKA MANZANO VERA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "DANIEL MAUREIRA GUTIERREZ",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "05/03/2026"
       },
       {
         "nombre": "ALEXIS MONROY GUAJARDO",
+        "run": "22.878.407",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
-        "nombre": "ANAHY OLATE MONROY",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "IAN PARRA MANZO",
+        "nombre": "ALISON ALARCON TRONCOSO",
+        "run": "22.590.523",
         "retirado": true,
-        "fechaRetiro": "13/04/2026"
-      },
-      {
-        "nombre": "MATIAS RETAMAL MUNOZ",
-        "retirado": true,
-        "fechaRetiro": "15/04/2026"
-      },
-      {
-        "nombre": "TIHARE RIQUELME ALMENDRAS",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "DOMINGO RODRIGUEZ ROJAS",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "ISABEL SALAS ROJAS",
-        "retirado": true,
-        "fechaRetiro": "08/04/2026"
-      },
-      {
-        "nombre": "ISIDORA SANCHEZ CACERES",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MAXIMILIANO SANCHEZ CACERES",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "IGNACIO SEPULVEDA FLORES",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": "17/06/2026",
+        "fechaMatricula": "10/03/2026"
       },
       {
         "nombre": "ALLINSON URETA URETA",
-        "retirado": false,
-        "fechaRetiro": null
+        "run": "22.209.223",
+        "retirado": true,
+        "fechaRetiro": "07/05/2026",
+        "fechaMatricula": "04/03/2026",
+        "nombreSaat": "ALISON URETA URETA"
       },
       {
-        "nombre": "VAIRON VALVERDE TORRES",
-        "retirado": false,
-        "fechaRetiro": null
+        "nombre": "ANAHY OLATE MONROY",
+        "run": "22.635.053",
+        "retirado": true,
+        "fechaRetiro": "14/08/2026",
+        "fechaMatricula": "05/03/2026"
       },
       {
-        "nombre": "CARLOS URIBE CARTES",
+        "nombre": "BENJAMIN HERNANDEZ BUSTAMANTE",
+        "run": "23.150.611",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "09/03/2026"
       },
       {
-        "nombre": "DANIELA ALFARO GODOY",
+        "nombre": "CAMILA ARIAS VARGAS",
+        "run": "20.651.006",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JOSE LILLO PINO",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "13/03/2026"
       },
       {
         "nombre": "CARLOS AGURTO FERRADA",
+        "run": "15.825.967",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "06/04/2026"
       },
       {
-        "nombre": "FRANCHESCA ESCOBAR ORELLANA",
+        "nombre": "CARLOS URIBE CARTES",
+        "run": "20.651.396",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "25/03/2026"
       },
       {
         "nombre": "CLARISA CAVIERES LOPEZ",
+        "run": "22.997.305",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "08/04/2026"
       },
       {
-        "nombre": "PABLO HEREDIA MONROYJUAN",
+        "nombre": "DANIEL MAUREIRA GUTIERREZ",
+        "run": "21.958.343",
+        "retirado": true,
+        "fechaRetiro": "17/06/2026",
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "DANIELA ALFARO GODOY",
+        "run": "19.283.009",
+        "retirado": true,
+        "fechaRetiro": "08/06/2026",
+        "fechaMatricula": "30/03/2026"
+      },
+      {
+        "nombre": "DIEGO FRIZ ESPINOZA",
+        "run": "22.004.576",
+        "retirado": true,
+        "fechaRetiro": "06/05/2026",
+        "fechaMatricula": "10/03/2026"
+      },
+      {
+        "nombre": "DOMINGO RODRIGUEZ ROJAS",
+        "run": "19.991.053",
+        "retirado": true,
+        "fechaRetiro": "07/05/2026",
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "ERIKA MANZANO VERA",
+        "run": "22.707.294",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "FRANCHESCA ESCOBAR ORELLANA",
+        "run": "20.316.569",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "07/04/2026"
+      },
+      {
+        "nombre": "GUEDITH BADILLA ESCALONA",
+        "run": "15.500.360",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "13/03/2026"
+      },
+      {
+        "nombre": "IAN PARRA MANZO",
+        "run": "22.757.289",
+        "retirado": true,
+        "fechaRetiro": "13/04/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "IGNACIO SEPULVEDA FLORES",
+        "run": "19.416.480",
+        "retirado": true,
+        "fechaRetiro": "26/05/2026",
+        "fechaMatricula": "02/03/2026"
+      },
+      {
+        "nombre": "ISABEL SALAS ROJAS",
+        "run": "9.328.585",
+        "retirado": true,
+        "fechaRetiro": "08/04/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "ISIDORA CONSTANCIO GONZALEZ",
+        "run": "22.100.074",
+        "retirado": true,
+        "fechaRetiro": "04/05/2026",
+        "fechaMatricula": "12/03/2026"
+      },
+      {
+        "nombre": "ISIDORA SANCHEZ CACERES",
+        "run": "22.393.383",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "JEAN PARRA CAGPATA",
+        "run": "29.151.193",
+        "retirado": true,
+        "fechaRetiro": "21/04/2026",
+        "fechaMatricula": "23/03/2026"
+      },
+      {
+        "nombre": "JOAQUIN GONZALES CORDOVA",
+        "run": "22.502.440",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026",
+        "nombreSaat": "JOAQUIN GONZALEZ CORDOVA"
+      },
+      {
+        "nombre": "JOSE CAMPOS ECHEVERRIA",
+        "run": "7.847.945",
+        "retirado": true,
+        "fechaRetiro": "14/05/2026",
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "JOSE LILLO PINO",
+        "run": "22.371.962",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "30/03/2026"
+      },
+      {
+        "nombre": "JUAN HEREDIA MONROY",
+        "run": "21.147.490",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "13/04/2026",
+        "nombreAnterior": "PABLO HEREDIA MONROYJUAN"
+      },
+      {
+        "nombre": "MARIA GATICA VILLAGRA",
+        "run": "22.820.327",
+        "retirado": true,
+        "fechaRetiro": "13/07/2026",
+        "fechaMatricula": "02/03/2026"
+      },
+      {
+        "nombre": "MARTIN ESPINOZA PAVEZ",
+        "run": "22.664.511",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "10/03/2026"
+      },
+      {
+        "nombre": "MATIAS RETAMAL MUNOZ",
+        "run": "22.616.679",
+        "retirado": true,
+        "fechaRetiro": "15/04/2026",
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "MAURICIO SOTO SEPULVEDA",
+        "run": "23.085.667",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "30/07/2026"
+      },
+      {
+        "nombre": "MAXIMILIANO SANCHEZ CACERES",
+        "run": "22.928.857",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "TIHARE RIQUELME ALMENDRAS",
+        "run": "22.570.056",
+        "retirado": true,
+        "fechaRetiro": "25/03/2026",
+        "fechaMatricula": "16/03/2026",
+        "nombreSaat": "THIARE RIQUELME ALMENDRAS"
+      },
+      {
+        "nombre": "VAIRON VALVERDE TORRES",
+        "run": "21.692.461",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "WILDO CHANDIA VASQUEZ",
+        "run": "22.889.236",
+        "retirado": true,
+        "fechaRetiro": "30/03/2026",
+        "fechaMatricula": "22/04/2026"
       }
     ]
   },
@@ -243,224 +368,324 @@
     "curso": "3Y4 HC",
     "alumnos": [
       {
-        "nombre": "RICARDO ALBORNOZ PETRAGLIA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "IVAN ALVEAR VIVANCO",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "LUIS ANTINAO CERDA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "GENESIS AVILA MUNOZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "YARITZA BADILLA VILLAGRA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "EMILY BUSTAMANTE ORTEGA",
-        "retirado": true,
-        "fechaRetiro": "10/04/2026"
-      },
-      {
-        "nombre": "BRALLAN CAMPOS CERDA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "FREDDY CAMPOS LEIVA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MARTIN CAMPOS VALDIVIA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "CLAUDIA CAMUS HERNANDEZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "GERMAN CARDENAS LILLO",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "CRISTIAN CARRILLO CONTRERAS",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
         "nombre": "ALEXIS CAYUMAN URRA",
+        "run": null,
         "retirado": true,
-        "fechaRetiro": "31/03/2026"
-      },
-      {
-        "nombre": "IVETTE CONTRERAS MARTINEZ",
-        "retirado": true,
-        "fechaRetiro": "20/04/2026"
-      },
-      {
-        "nombre": "BENJAMIN CUETO TAPIA",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": "31/03/2026",
+        "fechaMatricula": null,
+        "origen": "nomina-docx"
       },
       {
         "nombre": "ANAYS ESPINACE PENAILILLO",
+        "run": "22.541.641",
         "retirado": true,
-        "fechaRetiro": "15/04/2026"
-      },
-      {
-        "nombre": "MATIAS FERNANDEZ MENDEZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "BENJAMIN FUENTES MARIN",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "KRISSNA FUENTES MARIN",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "FRANCISCO FUENTES NORAMBUENA",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": "15/04/2026",
+        "fechaMatricula": "11/03/2026",
+        "nombreSaat": "ANAYS ESPINACE PANAILILLO"
       },
       {
         "nombre": "ANDRIU GALVEZ POBLETE",
+        "run": "22.354.061",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "CRISTOPHER GALVEZ POBLETE",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JOSE GARCIA CALDERON",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "GONZALO GUTIERREZ GOMEZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "SIAMARA HERNANDEZ TRAMOLAO",
-        "retirado": true,
-        "fechaRetiro": "21/04/2026"
-      },
-      {
-        "nombre": "OSCAR LASTRA FUENTES",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MARCO MARCHANT VILLAFANA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "CARLOS MONROY SOTO",
-        "retirado": true,
-        "fechaRetiro": "24/04/2026"
-      },
-      {
-        "nombre": "MARTIN MUNOZ LASTRA",
-        "retirado": true,
-        "fechaRetiro": "23/04/2025"
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
         "nombre": "ANGEL MUNOZ SALAZAR",
+        "run": "20.651.429",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "ROBERT MUNOZ YANEZ",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "09/03/2026"
       },
       {
         "nombre": "BASTIAN NAVARRETE CONCHA",
+        "run": "22.089.088",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
-        "nombre": "FABIAN NAWRATH SANTIBANEZ",
+        "nombre": "BENJAMIN CUETO TAPIA",
+        "run": "22.378.843",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
-        "nombre": "MAGDALENA PARADA JIMENEZ",
+        "nombre": "BENJAMIN FUENTES MARIN",
+        "run": "22.727.431",
         "retirado": true,
-        "fechaRetiro": "15/04/2026"
+        "fechaRetiro": "11/06/2026",
+        "fechaMatricula": "01/03/2026"
       },
       {
-        "nombre": "CONSTANZA PRADO VALLEJOS",
+        "nombre": "BRALLAN CAMPOS CERDA",
+        "run": "22.451.295",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "CARLOS MONROY SOTO",
+        "run": "22.675.310",
+        "retirado": true,
+        "fechaRetiro": "24/04/2026",
+        "fechaMatricula": "04/03/2026"
       },
       {
         "nombre": "CATALINA REYES CASTRO",
+        "run": "22.987.752",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
       },
       {
-        "nombre": "JAIME RODRIGUEZ ROJAS",
+        "nombre": "CLAUDIA CAMUS HERNANDEZ",
+        "run": "14.184.182",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026",
+        "nombreSaat": "CLAUDIA CAMUS HERNAANDEZ"
       },
       {
-        "nombre": "JORGE ROMERO ROA",
+        "nombre": "CONSTANZA PRADO VALLEJOS",
+        "run": "22.815.932",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "02/03/2026"
       },
       {
-        "nombre": "EDUARDO SALDIAS PIZARRO",
+        "nombre": "CRISTIAN CARRILLO CONTRERAS",
+        "run": "22.678.256",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
-        "nombre": "FRANCHESCA TRONCOSO ESCOBAR",
+        "nombre": "CRISTOPHER GALVEZ POBLETE",
+        "run": "22.354.049",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "TATIANA TRUDEO FLORES",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "FRANCISCO VILLAGRA CONCHA",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
         "nombre": "DANIEL VILLAGRA HERNANDEZ",
+        "run": "18.225.302",
+        "retirado": true,
+        "fechaRetiro": "15/05/2026",
+        "fechaMatricula": "04/03/2026",
+        "nombreSaat": "DANIEL VILLAGRA HERNADEZ"
+      },
+      {
+        "nombre": "EDUARDO SALDIAS PIZARRO",
+        "run": "21.688.137",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "EMILY BUSTAMANTE ORTEGA",
+        "run": "23.181.628",
+        "retirado": true,
+        "fechaRetiro": "10/04/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "FABIAN NAWRATH SANTIBANEZ",
+        "run": "23.024.419",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "10/03/2026"
+      },
+      {
+        "nombre": "FRANCHESCA TRONCOSO ESCOBAR",
+        "run": "22.909.916",
+        "retirado": true,
+        "fechaRetiro": "28/05/2026",
+        "fechaMatricula": "16/03/2026"
+      },
+      {
+        "nombre": "FRANCISCO FUENTES NORAMBUENA",
+        "run": "12.793.232",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026",
+        "nombreSaat": "FANCISCO FUENTES NORANBUENA"
+      },
+      {
+        "nombre": "FRANCISCO VILLAGRA CONCHA",
+        "run": "22.149.086",
+        "retirado": true,
+        "fechaRetiro": "15/06/2026",
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "FREDDY CAMPOS LEIVA",
+        "run": "22.563.597",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "GENESIS AVILA MUNOZ",
+        "run": "22.872.452",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "GERMAN CARDENAS LILLO",
+        "run": "22.750.648",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "GONZALO GUTIERREZ GOMEZ",
+        "run": "20.996.164",
+        "retirado": true,
+        "fechaRetiro": "18/03/2026",
+        "fechaMatricula": "11/03/2026"
+      },
+      {
+        "nombre": "IVAN ALVEAR VIVANCO",
+        "run": "21.311.103",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "IVETTE CONTRERAS MARTINEZ",
+        "run": "22.135.925",
+        "retirado": true,
+        "fechaRetiro": "20/04/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "JAIME RODRIGUEZ ROJAS",
+        "run": "22.134.184",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "JORGE ROMERO ROA",
+        "run": "22.789.986",
+        "retirado": true,
+        "fechaRetiro": "22/07/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "JOSE GARCIA CALDERON",
+        "run": "28.921.866",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "05/03/2026"
+      },
+      {
+        "nombre": "KRISSNA FUENTES MARIN",
+        "run": "22.223.053",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "LUIS ANTINAO CERDA",
+        "run": "8.270.056",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "MAGDALENA PARADA JIMENEZ",
+        "run": "22.514.767",
+        "retirado": true,
+        "fechaRetiro": "15/04/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "MARCO MARCHANT VILLAFANA",
+        "run": "22.855.400",
+        "retirado": true,
+        "fechaRetiro": "15/06/2026",
+        "fechaMatricula": "16/03/2026"
+      },
+      {
+        "nombre": "MARTIN CAMPOS VALDIVIA",
+        "run": "22.899.537",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "MARTIN MUNOZ LASTRA",
+        "run": "22.474.463",
+        "retirado": true,
+        "fechaRetiro": "23/04/2026",
+        "fechaMatricula": "02/03/2026"
+      },
+      {
+        "nombre": "MATIAS FERNANDEZ MENDEZ",
+        "run": "22.103.507",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "OSCAR LASTRA FUENTES",
+        "run": "2.262.318",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "RICARDO ALBORNOZ PETRAGLIA",
+        "run": "22.710.299",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "ROBERT MUNOZ YANEZ",
+        "run": "22.657.504",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "SIAMARA HERNANDEZ TRAMOLAO",
+        "run": "22.690.537",
+        "retirado": true,
+        "fechaRetiro": "21/04/2026",
+        "fechaMatricula": "06/03/2026"
+      },
+      {
+        "nombre": "TATIANA TRUDEO FLORES",
+        "run": "16.829.800",
+        "retirado": true,
+        "fechaRetiro": "05/05/2026",
+        "fechaMatricula": "05/03/2026"
       },
       {
         "nombre": "TOMAS ZUNIGA MORALES",
+        "run": "22.508.825",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "YANIER CHACON GUTIERREZ",
+        "run": "100.720.716",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "YARITZA BADILLA VILLAGRA",
+        "run": "22.557.461",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       }
     ]
   },
@@ -468,189 +693,279 @@
     "curso": "1Y2 ELE",
     "alumnos": [
       {
-        "nombre": "CARMEN AZOCAR PARRA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JUAN BASCUR CASANOVA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "SANTIAGO BUSTOS SEPULVEDA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "ALONZO CHANDIA GATICA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "KEVIN CISTERNA PEREZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MACARENA CONTRERAS ACUNA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "EDUARDO CONTRERAS MORA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MARCELO DELGADILLO DURAN",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JAVIER GAJARDO ROCHA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "VICENTE GUTIERREZ VALVERDE",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "DANIEL HERNANDEZ ROJAS",
-        "retirado": true,
-        "fechaRetiro": "13/04/2026"
-      },
-      {
         "nombre": "ALEJANDRO LILLO ALFARO",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "YOCHUA LUENGO GOMEZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "FRANCISCO MEDEL ALFARO",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JOSELIN MORALES MUNOZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "CONSTANZA MUNOZ BETANCOURT",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "LUIS NINO SEPULVEDA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "CRISTOBAL OJEDA BALDU",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MARIANA PACHECO GALLEGUILLOS",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "ELIAZAR PRADO PUGA",
-        "retirado": false,
-        "fechaRetiro": null
+        "run": "22.663.519",
+        "retirado": true,
+        "fechaRetiro": "06/05/2026",
+        "fechaMatricula": "01/03/2026"
       },
       {
         "nombre": "ALEX ROA ORTEGA",
+        "run": "21.958.541",
+        "retirado": true,
+        "fechaRetiro": "16/06/2026",
+        "fechaMatricula": "05/03/2026"
+      },
+      {
+        "nombre": "ALEXANDER MORENO CERDA",
+        "run": "22.898.748",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "06/04/2026",
+        "nombreAnterior": "ALEXANDERMAXIMILIANO MORENO CERDA"
       },
       {
         "nombre": "ALEXANDER ROZAS MERINO",
+        "run": "23.179.261",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
-        "nombre": "KARLA SALDANA CARRASCO",
+        "nombre": "ALONZO CHANDIA GATICA",
+        "run": "23.069.591",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JUAN SALDIAS RIQUELME",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "02/03/2026"
       },
       {
         "nombre": "ANTONIA SOTO MATUS",
+        "run": "23.320.869",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "CARMEN AZOCAR PARRA",
+        "run": "19.719.530",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "19/03/2026"
+      },
+      {
+        "nombre": "CONSTANZA MUNOZ BETANCOURT",
+        "run": "20.316.470",
+        "retirado": true,
+        "fechaRetiro": "29/05/2026",
+        "fechaMatricula": "19/03/2026"
+      },
+      {
+        "nombre": "CRISTOBAL OJEDA BALDU",
+        "run": "23.035.824",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "DANIEL HERNANDEZ ROJAS",
+        "run": "22.912.593",
+        "retirado": true,
+        "fechaRetiro": "13/04/2026",
+        "fechaMatricula": "04/03/2026"
       },
       {
         "nombre": "DAVID TAPIA SEPULVEDA",
+        "run": "22.733.775",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "LUIS VASQUEZ VASQUEZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JOSHUA VERGARA REYES",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MAXIMILIANO YANEZ VASQUEZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "WILDO CHANDIA VASQUEZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "ALEXANDERMAXIMILIANO MORENO CERDA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "TABITA MORALES LEIVA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "NICOLAS CIFUENTES REYES",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "DYLAN PEREZ MARIN",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JAVIER CANALES AGURTO",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JASMINE BUSTAMANTE URRUTIA",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
         "nombre": "DUSTTIAN SANCHEZ CATRILEO",
+        "run": "23.359.206",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "04/05/2026"
+      },
+      {
+        "nombre": "DYLAN PEREZ MARIN",
+        "run": "23.168.746",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "13/04/2026"
+      },
+      {
+        "nombre": "EDUARDO CONTRERAS MORA",
+        "run": "23.339.271",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "ELIAZAR PRADO PUGA",
+        "run": "21.762.843",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "FRANCISCO MEDEL ALFARO",
+        "run": "22.940.094",
+        "retirado": true,
+        "fechaRetiro": "14/07/2026",
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "JAIDER TABORDA PEREZ",
+        "run": "100.655.086",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "12/03/2026"
+      },
+      {
+        "nombre": "JASMINE BUSTAMANTE URRUTIA",
+        "run": "22.837.861",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "23/04/2026"
+      },
+      {
+        "nombre": "JAVIER CANALES AGURTO",
+        "run": "22.775.021",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "21/04/2026"
+      },
+      {
+        "nombre": "JAVIER GAJARDO ROCHA",
+        "run": "22.951.182",
+        "retirado": true,
+        "fechaRetiro": "09/07/2026",
+        "fechaMatricula": "05/03/2026"
+      },
+      {
+        "nombre": "JOSELIN MORALES MUNOZ",
+        "run": "16.041.520",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026",
+        "nombreSaat": "JOSELINE MORALES MUNOZ"
+      },
+      {
+        "nombre": "JOSHUA VERGARA REYES",
+        "run": "22.996.703",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "16/03/2026"
+      },
+      {
+        "nombre": "JUAN BASCUR CASANOVA",
+        "run": "22.898.926",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "JUAN SALDIAS RIQUELME",
+        "run": "22.909.896",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "KARLA SALDANA CARRASCO",
+        "run": "22.652.962",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "02/03/2026"
+      },
+      {
+        "nombre": "KEVIN CISTERNA PEREZ",
+        "run": "23.248.177",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "02/03/2026"
+      },
+      {
+        "nombre": "LUIS NINO SEPULVEDA",
+        "run": "22.881.701",
+        "retirado": true,
+        "fechaRetiro": "15/07/2026",
+        "fechaMatricula": "11/03/2026"
+      },
+      {
+        "nombre": "LUIS VASQUEZ VASQUEZ",
+        "run": "22.856.213",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "MACARENA CONTRERAS ACUNA",
+        "run": "19.583.858",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "MARCELO DELGADILLO DURAN",
+        "run": "22.218.739",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "18/03/2026"
+      },
+      {
+        "nombre": "MARIANA PACHECO GALLEGUILLOS",
+        "run": "23.199.419",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "MAXIMILIANO YANEZ VASQUEZ",
+        "run": "22.852.319",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "NICOLAS CIFUENTES REYES",
+        "run": "23.198.549",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "13/04/2026"
+      },
+      {
+        "nombre": "SANTIAGO BUSTOS SEPULVEDA",
+        "run": "22.997.379",
+        "retirado": true,
+        "fechaRetiro": "27/07/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "TABITA MORALES LEIVA",
+        "run": "20.620.446",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "07/04/2026"
+      },
+      {
+        "nombre": "VICENTE GUTIERREZ VALVERDE",
+        "run": "23.009.093",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "WILDO CHANDIA VASQUEZ",
+        "run": "22.889.236",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "30/03/2026"
+      },
+      {
+        "nombre": "YOCHUA LUENGO GOMEZ",
+        "run": "23.117.853",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "09/03/2026"
+      },
+      {
+        "nombre": "YORDANO CASTILLO LOPEZ",
+        "run": "23.121.410",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "22/07/2026"
       }
     ]
   },
@@ -658,54 +973,82 @@
     "curso": "3 ELEC",
     "alumnos": [
       {
-        "nombre": "DANIEL ARIAS VARGAS",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "VICENTE FUENTES INOSTROZA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "FELIX GARCIA ABURTO",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "LUIS MAUREIRA ESPINOZA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "FELIPE MEZA SALVO",
-        "retirado": true,
-        "fechaRetiro": "16/04/2026"
-      },
-      {
-        "nombre": "FERNANDO ORREGO PARADA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "FELIPE SEPULVEDA CERDA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JESICA VALDES MORALES",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
         "nombre": "ALEXIS CAYUMAN URRA",
+        "run": null,
         "retirado": true,
-        "fechaRetiro": "22/04/2026"
+        "fechaRetiro": "22/04/2026",
+        "fechaMatricula": null,
+        "origen": "nomina-docx"
+      },
+      {
+        "nombre": "ANDRES ZAVALA LOPEZ",
+        "run": "23.242.271",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "15/07/2026"
+      },
+      {
+        "nombre": "DANIEL ARIAS VARGAS",
+        "run": "23.110.360",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "13/03/2026"
       },
       {
         "nombre": "DIEGO OYARCE ESPINOZA",
+        "run": "22.683.606",
+        "retirado": true,
+        "fechaRetiro": "14/07/2026",
+        "fechaMatricula": "07/04/2026"
+      },
+      {
+        "nombre": "FELIPE MEZA SALVO",
+        "run": "22.973.124",
+        "retirado": true,
+        "fechaRetiro": "16/04/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "FELIPE SEPULVEDA CERDA",
+        "run": "21.592.307",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "30/03/2026"
+      },
+      {
+        "nombre": "FELIX GARCIA ABURTO",
+        "run": "20.922.152",
+        "retirado": true,
+        "fechaRetiro": "14/05/2026",
+        "fechaMatricula": "20/03/2026"
+      },
+      {
+        "nombre": "FERNANDO ORREGO PARADA",
+        "run": "22.798.493",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "JESICA VALDES MORALES",
+        "run": "22.531.104",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "31/03/2026"
+      },
+      {
+        "nombre": "LUIS MAUREIRA ESPINOZA",
+        "run": "22.851.372",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "VICENTE FUENTES INOSTROZA",
+        "run": "22.681.155",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       }
     ]
   },
@@ -714,38 +1057,66 @@
     "alumnos": [
       {
         "nombre": "ABRAHAM ARIAS FUENTES",
+        "run": "22.728.957",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "WILLIAMS CONTRERAS FLORES",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "CRISTOFER FUENTES QUEZADA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "JESUS MUNOZ CANCINO",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "KIEFER QUIROGA ROJO",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
         "nombre": "CRISTIAN VELOZO SALAZAR",
+        "run": "22.842.299",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "CRISTOFER FUENTES QUEZADA",
+        "run": "21.695.492",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "JESUS MUNOZ CANCINO",
+        "run": "22.388.962",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "KIEFER QUIROGA ROJO",
+        "run": "22.558.504",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "LUIYI BRINEZ ROMERO",
+        "run": "100.699.523",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
         "nombre": "SEBASTIAN PARRA FLORES",
+        "run": "22.323.300",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "30/03/2026"
+      },
+      {
+        "nombre": "STANLEY FRANCOIS",
+        "run": "26.625.598",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "WILLIAMS CONTRERAS FLORES",
+        "run": "22.865.232",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       }
     ]
   },
@@ -753,59 +1124,88 @@
     "curso": "1Y2 PAR",
     "alumnos": [
       {
-        "nombre": "CLARISA CAVIERES LOPEZ",
+        "nombre": "ALISON ALARCON TRONCOSO",
+        "run": "22.590.523",
         "retirado": true,
-        "fechaRetiro": "08/04/2026"
-      },
-      {
-        "nombre": "AYLEEN GUARACHE FARFAN",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MILLARAY MORALES PEREZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "CATALINA MUNOZ MORA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "SOLEDAD NOVOA CONTRERAS",
-        "retirado": true,
-        "fechaRetiro": "22/04/2026"
-      },
-      {
-        "nombre": "PIA OSSES URRA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "DANIELA PENA TOLEDO",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": "31/03/2026",
+        "fechaMatricula": "24/03/2026"
       },
       {
         "nombre": "AMANDA SEGURA LAGOS",
+        "run": "22.742.442",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "AYLEEN GUARACHE FARFAN",
+        "run": "22.129.170",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "CATALINA MUNOZ MORA",
+        "run": "22.305.300",
+        "retirado": true,
+        "fechaRetiro": "07/07/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "CLARISA CAVIERES LOPEZ",
+        "run": "22.997.305",
+        "retirado": true,
+        "fechaRetiro": "08/04/2026",
+        "fechaMatricula": "02/03/2026"
+      },
+      {
+        "nombre": "DANIELA PENA TOLEDO",
+        "run": "22.452.074",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
         "nombre": "MICHELL SUAZO SANCHEZ",
+        "run": "22.875.306",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "MILLARAY MORALES PEREZ",
+        "run": "21.941.987",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "02/03/2026"
       },
       {
         "nombre": "NATALIA VALDES JARA",
+        "run": "21.377.619",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "05/03/2026"
       },
       {
-        "nombre": "ALISON ALARCON TRONCOSO",
+        "nombre": "PIA OSSES URRA",
+        "run": "22.769.818",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "SOLEDAD NOVOA CONTRERAS",
+        "run": "17.663.297",
         "retirado": true,
-        "fechaRetiro": "31/03/2026"
+        "fechaRetiro": "22/04/2026",
+        "fechaMatricula": "23/03/2026"
+      },
+      {
+        "nombre": "WUENDY CASTILLO OBREQUE",
+        "run": "22.851.758",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "20/05/2026"
       }
     ]
   },
@@ -813,134 +1213,194 @@
     "curso": "3 PAR",
     "alumnos": [
       {
-        "nombre": "ROSARIO AGURTO CONTRERAS",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "LUZ ARAVENA CISTERNA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "ANTONIA CASTILLO URETA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "ELIDA CAVIERES ISLA",
-        "retirado": true,
-        "fechaRetiro": "17/04/2026"
-      },
-      {
-        "nombre": "MARTINA CISTERNA RIVEROS",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
         "nombre": "ADRIANA CISTERNA URRUTIA",
+        "run": "16.241.682",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "GLADYS ESPINOZA SEGOVIA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "KAREN FALCON ALARCON",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "ELBIA FUENTES FUENTES",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MIA GUTIERREZ VIELMA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "VANNESSA MAUREIRA VIVANCO",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MEY MELLADO MIRANDA",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
         "nombre": "AILEN MENA CUEVAS",
+        "run": "23.014.106",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "YARIXA MONROY URRA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MONSERRAT ORTEGA LASTRA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MARIA PARRA LARA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "LIZETTHY QUIROZ ACUNA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "BELGICA RIVERA MUNOZ",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "MARYSOL RODRIGUEZ GONZALEZ",
-        "retirado": true,
-        "fechaRetiro": "30/03/2026"
-      },
-      {
-        "nombre": "CONSTANZA SEGURA MORALES",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "CATALINA SEPULVEDA PAVEZ",
-        "retirado": true,
-        "fechaRetiro": "31/03/2026"
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
         "nombre": "ALEJANDRA SUAZO ROSALES",
+        "run": "22.522.783",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "FRANCISCA TORRES VILLABLANCA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "NICOL VALLEJOS NAVARRETE",
-        "retirado": true,
-        "fechaRetiro": "28/04/2026"
-      },
-      {
-        "nombre": "ANTONIA VEJAR SARAVIA",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
       },
       {
         "nombre": "ANAYS ESPINACE PENAILILLO",
+        "run": "22.541.641",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "16/04/2026",
+        "nombreSaat": "ANAYS ESPINACE PANAILILLO"
+      },
+      {
+        "nombre": "ANTONIA CASTILLO URETA",
+        "run": "22.940.980",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "16/03/2026"
+      },
+      {
+        "nombre": "ANTONIA VEJAR SARAVIA",
+        "run": "22.957.111",
+        "retirado": true,
+        "fechaRetiro": "19/05/2026",
+        "fechaMatricula": "26/03/2026"
+      },
+      {
+        "nombre": "BELGICA RIVERA MUNOZ",
+        "run": "22.913.508",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "10/03/2026"
+      },
+      {
+        "nombre": "CATALINA SEPULVEDA PAVEZ",
+        "run": "22.535.354",
+        "retirado": true,
+        "fechaRetiro": "31/03/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "CONSTANZA SEGURA MORALES",
+        "run": "22.332.275",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "ELBIA FUENTES FUENTES",
+        "run": "22.215.861",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "ELIDA CAVIERES ISLA",
+        "run": "17.956.028",
+        "retirado": true,
+        "fechaRetiro": "17/04/2026",
+        "fechaMatricula": "09/03/2026"
+      },
+      {
+        "nombre": "FRANCISCA TORRES VILLABLANCA",
+        "run": "21.547.254",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "GLADYS ESPINOZA SEGOVIA",
+        "run": "23.091.852",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "KAREN FALCON ALARCON",
+        "run": "22.790.077",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "LIZETTHY QUIROZ ACUNA",
+        "run": "22.847.927",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "LUZ ARAVENA CISTERNA",
+        "run": "12.185.625",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "MARIA PARRA LARA",
+        "run": "17.411.091",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "MARTINA CISTERNA RIVEROS",
+        "run": "23.117.319",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "MARYSOL RODRIGUEZ GONZALEZ",
+        "run": "22.217.417",
+        "retirado": true,
+        "fechaRetiro": "30/03/2026",
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "MEY MELLADO MIRANDA",
+        "run": "22.748.349",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "MIA GUTIERREZ VIELMA",
+        "run": "22.975.315",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "MONSERRAT ORTEGA LASTRA",
+        "run": "22.776.951",
+        "retirado": true,
+        "fechaRetiro": "11/06/2026",
+        "fechaMatricula": "04/03/2026"
+      },
+      {
+        "nombre": "NICOL VALLEJOS NAVARRETE",
+        "run": "19.127.565",
+        "retirado": true,
+        "fechaRetiro": "28/04/2026",
+        "fechaMatricula": "18/03/2026"
+      },
+      {
+        "nombre": "ROSARIO AGURTO CONTRERAS",
+        "run": "23.047.656",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "23/07/2026"
+      },
+      {
+        "nombre": "TANIA RETAMAL MUNOZ",
+        "run": "23.270.365",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "08/06/2026"
+      },
+      {
+        "nombre": "VANNESSA MAUREIRA VIVANCO",
+        "run": "19.389.732",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "03/03/2026"
+      },
+      {
+        "nombre": "YARIXA MONROY URRA",
+        "run": "22.954.284",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "04/03/2026"
       }
     ]
   },
@@ -948,44 +1408,60 @@
     "curso": "4 PAR",
     "alumnos": [
       {
-        "nombre": "KATERIN AGUILERA TORRES",
+        "nombre": "ANTONELLA SEPULVEDA PARADA",
+        "run": "22.444.865",
         "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "FRANCISCA BADILLA ORTEGA",
-        "retirado": false,
-        "fechaRetiro": null
-      },
-      {
-        "nombre": "DIANA CERDA MUNOZ",
-        "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
         "nombre": "BERNARDITA FUENZALIDA PEREIRA",
+        "run": "17.717.681",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
-        "nombre": "TAMARA ROMERO URRUTIA",
+        "nombre": "DIANA CERDA MUNOZ",
+        "run": "22.706.886",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
-        "nombre": "ANTONELLA SEPULVEDA PARADA",
+        "nombre": "FRANCISCA BADILLA ORTEGA",
+        "run": "22.544.353",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
-        "nombre": "TATIANA SOTO NAVARRO",
+        "nombre": "KATERIN AGUILERA TORRES",
+        "run": "22.690.257",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       },
       {
         "nombre": "LISSETTE VASQUEZ SALDIAS",
+        "run": "22.884.653",
         "retirado": false,
-        "fechaRetiro": null
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "TAMARA ROMERO URRUTIA",
+        "run": "22.323.067",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
+      },
+      {
+        "nombre": "TATIANA SOTO NAVARRO",
+        "run": "22.851.258",
+        "retirado": false,
+        "fechaRetiro": null,
+        "fechaMatricula": "01/03/2026"
       }
     ]
   }
