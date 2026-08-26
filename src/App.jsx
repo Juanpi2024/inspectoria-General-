@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Save, FileText, TrendingUp, TrendingDown, Minus, 
-  UserPlus, UserMinus, AlertTriangle, CheckCircle, Info, Printer, Loader2, Plus, Calendar, Cloud, CloudOff, RefreshCw, User
+  UserPlus, UserMinus, AlertTriangle, CheckCircle, Info, Printer, Loader2, Plus, Calendar, Cloud, CloudOff, RefreshCw, User,
+  Search, X, Pencil, Trash2, Stethoscope, ClipboardCheck
 } from 'lucide-react';
 import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
@@ -65,6 +66,9 @@ export default function App() {
   const [expedienteFilterUnder50, setExpedienteFilterUnder50] = useState(false);
   const [expedienteFilterDerivacion, setExpedienteFilterDerivacion] = useState(false);
   const [searchTermLicencias, setSearchTermLicencias] = useState('');
+  const [filterCursoLicencias, setFilterCursoLicencias] = useState('');
+  const [filterTipoLicencias, setFilterTipoLicencias] = useState('');
+  const [licenciaAEliminar, setLicenciaAEliminar] = useState(null);
   const [showAlertaModal, setShowAlertaModal] = useState(false);
   const [showLicenciaModal, setShowLicenciaModal] = useState(false);
   const [modalPosition, setModalPosition] = useState(null);
@@ -1086,33 +1090,171 @@ export default function App() {
         </div>
       )}
 
-      {subTab === 'licencias' && (
+      {subTab === 'licencias' && (() => {
+        const lics = data.licencias || [];
+        const esAtencion = (l) => l.tipoCertificado === 'atencion';
+        const totalMedicas = lics.filter(l => !esAtencion(l)).length;
+        const totalAtenciones = lics.filter(esAtencion).length;
+        const totalDias = lics.reduce((s, l) => s + (Number(l.diasJustificados) || 0), 0);
+        const estaRetirado = (l) => Boolean(l.retirado || retiredStudentsMap.has(l.nombre));
+
+        const filtradas = lics.filter(l => {
+          const coincideNombre = (l.nombre || '').toLowerCase().includes(searchTermLicencias.toLowerCase());
+          const coincideCurso = !filterCursoLicencias || l.curso === filterCursoLicencias;
+          const coincideTipo = !filterTipoLicencias ||
+            (filterTipoLicencias === 'atencion' ? esAtencion(l) : !esAtencion(l));
+          return coincideNombre && coincideCurso && coincideTipo;
+        });
+
+        const hayFiltros = Boolean(searchTermLicencias || filterCursoLicencias || filterTipoLicencias);
+        const limpiarFiltros = () => {
+          setSearchTermLicencias('');
+          setFilterCursoLicencias('');
+          setFilterTipoLicencias('');
+        };
+
+        const cerrarModal = () => {
+          setShowLicenciaModal(false);
+          setEditandoLicenciaId(null);
+          setNuevaLicencia({ nombre: '', curso: '', tipoCertificado: 'licencia', diasJustificados: '' });
+          setInputManualLicencia(false);
+        };
+
+        const duplicadas = nuevaLicencia.nombre
+          ? lics.filter(l => l.nombre === nuevaLicencia.nombre && l.id !== editandoLicenciaId).length
+          : 0;
+        const alumnoRetirado = nuevaLicencia.nombre && retiredStudentsMap.has(nuevaLicencia.nombre);
+
+        return (
         <div className="animate-fade-in">
           <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <h2 style={{ marginBottom: '0.25rem' }}>Expediente de Licencias Médicas</h2>
+                <h2 style={{ marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <Stethoscope size={22} style={{ color: 'var(--danger)' }} />
+                  Expediente de Licencias Médicas
+                </h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-                  Total: {(data.licencias || []).length} registros justificados.
+                  Respaldo de inasistencias justificadas · {data.periodo || 'Sin periodo asignado'}
                 </p>
               </div>
-              <button className="primary" onClick={() => setShowLicenciaModal(true)}>+ Agregar Licencia</button>
+              <button className="primary" onClick={() => setShowLicenciaModal(true)}>
+                <Plus size={18} /> Agregar Licencia
+              </button>
             </div>
-            
-            <div style={{ marginBottom: '1.5rem' }}>
-              <input 
-                type="text" 
-                placeholder="🔍 Buscar alumno por nombre..." 
-                value={searchTermLicencias}
-                onChange={e => setSearchTermLicencias(e.target.value)}
-                style={{ width: '100%', maxWidth: '400px' }}
-              />
+
+            {/* Resumen del expediente */}
+            <div className="grid-3" style={{ marginBottom: '1.75rem' }}>
+              <div className="metric-card">
+                <div className="metric-icon" style={{ background: 'var(--primary-ultra-light)', color: 'var(--primary)' }}>
+                  <Stethoscope size={24} />
+                </div>
+                <div className="metric-value" style={{ color: 'var(--primary)' }}>{totalMedicas}</div>
+                <div className="metric-title">Licencias Médicas</div>
+              </div>
+              <div className="metric-card">
+                <div className="metric-icon" style={{ background: 'var(--accent-orange-light)', color: 'var(--accent-orange)' }}>
+                  <ClipboardCheck size={24} />
+                </div>
+                <div className="metric-value" style={{ color: 'var(--accent-orange)' }}>{totalAtenciones}</div>
+                <div className="metric-title">Cert. de Atención</div>
+              </div>
+              <div className="metric-card">
+                <div className="metric-icon" style={{ background: 'var(--accent-green-light)', color: 'var(--accent-green)' }}>
+                  <Calendar size={24} />
+                </div>
+                <div className="metric-value" style={{ color: 'var(--accent-green)' }}>{totalDias}</div>
+                <div className="metric-title">Días Justificados</div>
+              </div>
             </div>
+
+            {/* Filtros */}
+            {lics.length > 0 && (
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div style={{ position: 'relative', flex: '1 1 260px', minWidth: '220px' }}>
+                  <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                  <input
+                    type="text"
+                    placeholder="Buscar alumno por nombre..."
+                    value={searchTermLicencias}
+                    onChange={e => setSearchTermLicencias(e.target.value)}
+                    style={{ width: '100%', paddingLeft: '2.4rem' }}
+                  />
+                </div>
+                <select
+                  value={filterCursoLicencias}
+                  onChange={e => setFilterCursoLicencias(e.target.value)}
+                  style={{ flex: '0 1 170px' }}
+                >
+                  <option value="">Todos los cursos</option>
+                  {CURSOS_OFICIALES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <select
+                  value={filterTipoLicencias}
+                  onChange={e => setFilterTipoLicencias(e.target.value)}
+                  style={{ flex: '0 1 190px' }}
+                >
+                  <option value="">Todos los tipos</option>
+                  <option value="licencia">Licencia Médica</option>
+                  <option value="atencion">Cert. de Atención</option>
+                </select>
+                {hayFiltros && (
+                  <button className="secondary" onClick={limpiarFiltros} title="Limpiar filtros">
+                    <X size={16} /> Limpiar
+                  </button>
+                )}
+              </div>
+            )}
+
+            {hayFiltros && (
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+                Mostrando <strong>{filtradas.length}</strong> de {lics.length} registros
+              </p>
+            )}
+
+            {/* Modal de confirmación de borrado */}
+            {licenciaAEliminar && (
+              <div className="modal-overlay">
+                <div className="modal-card animate-fade-in" style={{ maxWidth: '440px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                    <div className="metric-icon" style={{ width: 44, height: 44, marginBottom: 0, background: 'var(--accent-pink-light)', color: 'var(--danger)' }}>
+                      <AlertTriangle size={22} />
+                    </div>
+                    <h3 style={{ margin: 0 }}>¿Eliminar este registro?</h3>
+                  </div>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                    Se eliminará la licencia de <strong>{licenciaAEliminar.nombre}</strong>
+                    {licenciaAEliminar.curso ? ` (${licenciaAEliminar.curso})` : ''}.
+                  </p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+                    Esta acción no se puede deshacer.
+                  </p>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button type="button" className="secondary" style={{ flex: 1 }} onClick={() => setLicenciaAEliminar(null)}>
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      className="danger"
+                      style={{ flex: 1 }}
+                      onClick={() => { handleRemoveLicencia(licenciaAEliminar.id); setLicenciaAEliminar(null); }}
+                    >
+                      <Trash2 size={16} /> Eliminar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {(showLicenciaModal || editandoLicenciaId) && (
               <div className="modal-overlay">
-                <div className="modal-card animate-fade-in" style={{ maxWidth: '500px' }}>
-                  <h3 style={{ marginBottom: '1.5rem' }}>{editandoLicenciaId ? 'Editar Licencia' : 'Nueva Licencia Médica'}</h3>
+                <div className="modal-card animate-fade-in" style={{ maxWidth: '520px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                    <div className="metric-icon" style={{ width: 44, height: 44, marginBottom: 0, background: 'var(--primary-ultra-light)', color: 'var(--primary)' }}>
+                      <Stethoscope size={22} />
+                    </div>
+                    <h3 style={{ margin: 0 }}>{editandoLicenciaId ? 'Editar Licencia' : 'Nueva Licencia Médica'}</h3>
+                  </div>
                   <form onSubmit={(e) => { handleAddLicencia(e); setShowLicenciaModal(false); setEditandoLicenciaId(null); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div className="grid-2">
                       <div className="form-group" style={{ marginBottom: 0 }}>
@@ -1140,7 +1282,9 @@ export default function App() {
                             disabled={!nuevaLicencia.curso}
                           >
                             <option value="">{nuevaLicencia.curso ? "Seleccione alumno..." : "Primero seleccione curso"}</option>
-                            {(nuevaLicencia.curso && alumnosPorCurso[nuevaLicencia.curso] ? alumnosPorCurso[nuevaLicencia.curso] : uniqueNombres).map(n => <option key={n} value={n}>{n}</option>)}
+                            {(nuevaLicencia.curso && alumnosPorCurso[nuevaLicencia.curso] ? alumnosPorCurso[nuevaLicencia.curso] : uniqueNombres).map(n => (
+                              <option key={n} value={n}>{retiredStudentsMap.has(n) ? `${n}  (retirado)` : n}</option>
+                            ))}
                             <option value="__OTRO__">+ Ingresar nuevo alumno...</option>
                           </select>
                         ) : (
@@ -1169,6 +1313,20 @@ export default function App() {
                         )}
                       </div>
                     </div>
+
+                    {duplicadas > 0 && (
+                      <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start', padding: '0.75rem 0.9rem', borderRadius: '12px', background: 'var(--accent-orange-light)', color: '#a8590a', fontSize: '0.85rem' }}>
+                        <Info size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+                        <span>Este alumno ya tiene <strong>{duplicadas}</strong> registro(s) en este periodo. Verifica que no sea un duplicado.</span>
+                      </div>
+                    )}
+                    {alumnoRetirado && (
+                      <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start', padding: '0.75rem 0.9rem', borderRadius: '12px', background: 'var(--accent-pink-light)', color: '#b02525', fontSize: '0.85rem' }}>
+                        <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+                        <span>Este alumno figura como <strong>retirado</strong> en la nómina oficial.</span>
+                      </div>
+                    )}
+
                     <div className="grid-2">
                       <div className="form-group" style={{ marginBottom: 0 }}>
                         <label>Tipo Certificado</label>
@@ -1198,7 +1356,7 @@ export default function App() {
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                      <button type="button" className="secondary" style={{ flex: 1 }} onClick={() => { setShowLicenciaModal(false); setEditandoLicenciaId(null); setNuevaLicencia({ nombre: '', curso: '', tipoCertificado: 'licencia', diasJustificados: '' }); setInputManualLicencia(false); }}>Cancelar</button>
+                      <button type="button" className="secondary" style={{ flex: 1 }} onClick={cerrarModal}>Cancelar</button>
                       <button type="submit" className="primary" style={{ flex: 1 }}>{editandoLicenciaId ? 'Actualizar' : 'Guardar'}</button>
                     </div>
                   </form>
@@ -1206,7 +1364,33 @@ export default function App() {
               </div>
             )}
 
-            {(data.licencias || []).length > 0 ? (
+            {lics.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3.5rem 1.5rem', border: '2px dashed var(--border)', borderRadius: '16px', background: 'var(--bg-subtle)' }}>
+                <div className="metric-icon" style={{ margin: '0 auto 1rem', background: 'var(--primary-ultra-light)', color: 'var(--primary)' }}>
+                  <Stethoscope size={26} />
+                </div>
+                <h3 style={{ marginBottom: '0.4rem' }}>Aún no hay licencias este periodo</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+                  Registra aquí cada licencia médica o certificado de atención que respalde una inasistencia.
+                </p>
+                <button className="primary" onClick={() => setShowLicenciaModal(true)}>
+                  <Plus size={18} /> Agregar la primera licencia
+                </button>
+              </div>
+            ) : filtradas.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3rem 1.5rem', border: '2px dashed var(--border)', borderRadius: '16px', background: 'var(--bg-subtle)' }}>
+                <div className="metric-icon" style={{ margin: '0 auto 1rem', background: 'var(--bg-card)', color: 'var(--text-muted)' }}>
+                  <Search size={26} />
+                </div>
+                <h3 style={{ marginBottom: '0.4rem' }}>Sin resultados</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+                  Ningún registro coincide con los filtros aplicados.
+                </p>
+                <button className="secondary" onClick={limpiarFiltros}>
+                  <X size={16} /> Limpiar filtros
+                </button>
+              </div>
+            ) : (
               <div className="table-container">
                 <table>
                   <thead>
@@ -1214,62 +1398,72 @@ export default function App() {
                       <th>Estudiante</th>
                       <th>Curso</th>
                       <th>Tipo</th>
-                      <th>Días</th>
-                      <th></th>
+                      <th style={{ textAlign: 'center' }}>Días</th>
+                      <th style={{ textAlign: 'right' }}>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {(data.licencias || [])
-                      .filter(l => l.nombre.toLowerCase().includes(searchTermLicencias.toLowerCase()))
-                      .map(l => (
-                      <tr key={l.id} style={{ opacity: (l.retirado || retiredStudentsMap.has(l.nombre)) ? 0.5 : 1, background: (l.retirado || retiredStudentsMap.has(l.nombre)) ? 'rgba(239, 68, 68, 0.05)' : 'transparent' }}>
+                    {filtradas.map(l => {
+                      const retirado = estaRetirado(l);
+                      const atencion = esAtencion(l);
+                      return (
+                      <tr key={l.id} style={{ background: retirado ? 'var(--accent-pink-light)' : 'transparent' }}>
                         <td>
-                          {l.nombre}
-                          {(l.retirado || retiredStudentsMap.has(l.nombre)) && (
-                            <span style={{ marginLeft: '0.5rem', color: 'var(--red)', fontSize: '0.75rem', fontWeight: 'bold' }}>
-                              (RETIRADO {retiredStudentsMap.get(l.nombre) ? `- ${retiredStudentsMap.get(l.nombre)}` : ''})
-                            </span>
-                          )}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 600, color: retirado ? 'var(--text-muted)' : 'var(--text-main)' }}>{l.nombre}</span>
+                            {retirado && (
+                              <span className="badge badge-red">
+                                Retirado{retiredStudentsMap.get(l.nombre) ? ` · ${retiredStudentsMap.get(l.nombre)}` : (l.fechaRetiro ? ` · ${l.fechaRetiro}` : '')}
+                              </span>
+                            )}
+                          </div>
                         </td>
-                        <td>{l.curso || '-'}</td>
                         <td>
-                          {l.tipoCertificado === 'atencion' 
-                            ? <span style={{ color: 'var(--orange, #f59e0b)', fontWeight: 500 }}>Cert. Atención</span>
-                            : <span style={{ color: 'var(--primary)', fontWeight: 500 }}>Licencia Médica</span>
-                          }
+                          {l.curso ? <span className="badge badge-blue">{l.curso}</span> : <span style={{ color: 'var(--text-muted)' }}>—</span>}
                         </td>
-                        <td>{l.tipoCertificado === 'atencion' ? `${l.diasJustificados || 0} día(s)` : `${l.diasJustificados} días`}</td>
+                        <td>
+                          <span className={`badge ${atencion ? 'badge-orange' : 'badge-blue'}`}>
+                            {atencion ? <ClipboardCheck size={13} /> : <Stethoscope size={13} />}
+                            {atencion ? 'Cert. Atención' : 'Licencia Médica'}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <span style={{ fontWeight: 700, fontSize: '1.05rem' }}>{Number(l.diasJustificados) || 0}</span>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}> día{(Number(l.diasJustificados) || 0) === 1 ? '' : 's'}</span>
+                        </td>
                         <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                           <button 
                             className="secondary" 
-                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', marginRight: '0.5rem' }}
+                            style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem', marginRight: '0.5rem' }}
+                            title="Editar licencia"
                             onClick={() => {
                               setNuevaLicencia({ nombre: l.nombre, curso: l.curso, tipoCertificado: l.tipoCertificado || 'licencia', diasJustificados: l.diasJustificados || '' });
                               setEditandoLicenciaId(l.id);
                               setInputManualLicencia(false);
                             }}
                           >
-                            Editar
+                            <Pencil size={14} /> Editar
                           </button>
                           <button 
                             className="danger" 
-                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
-                            onClick={() => handleRemoveLicencia(l.id)}
+                            style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem' }}
+                            title="Eliminar licencia"
+                            onClick={() => setLicenciaAEliminar(l)}
                           >
-                            Eliminar
+                            <Trash2 size={14} /> Eliminar
                           </button>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
-            ) : (
-              <p style={{ color: 'var(--text-muted)' }}>No hay licencias registradas en este periodo.</p>
             )}
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {subTab === 'alertas' && (
         <div className="animate-fade-in">
